@@ -1,0 +1,798 @@
+---
+title-block-banner: "Análisis de datos Meterológicos"
+subtitle: Propuesta de plan de accion para la estimación de la precisión y exactitud recolectados por la estación meteorológica OFENA
+author: "Weslin R. Silva"
+date: "2025-02-04"
+pdf-engine: xelatex
+mainfont: Times New Roman
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+data_ofena <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/data_ofena.csv")
+wema_temp <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesTemperatura.csv")
+wema_humedad <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesHumedad.csv")
+wema_dirviento <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesDirviento.csv")
+wema_presion <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesPresion.csv")
+wema_velviento <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionVelViento.csv")
+
+```
+
+```{r}
+# limpiar y ordenar data ofena
+cant_ofena_sinLimpiar <- nrow(data_ofena)
+# formatear fechas en dataset OFENA
+data_ofena$SimpleDate <- gsub("-", "/", data_ofena$SimpleDate)
+data_ofena$SimpleDate <- as.POSIXct(data_ofena$SimpleDate, format = "%Y/%m/%d %H:%M")
+data_ofena$SimpleDate <- format(data_ofena$SimpleDate, "%m/%d/%Y %H:%M")
+data_ofena$SimpleDate <- as.POSIXct(data_ofena$SimpleDate, format = "%m/%d/%Y %H:%M")
+data_ofena <- data_ofena %>% mutate(Fecha = as.Date(SimpleDate, format = "%Y-%m-%d"), Hora = format(as.POSIXct(SimpleDate), format = "%H:%M:%S"))
+
+# ordenar los datos por fecha y hora
+data_ofena <- data_ofena %>% arrange(Fecha, Hora)
+data_ofena <- data_ofena %>% filter(format(SimpleDate, "%M") %in% sprintf("%02d", seq(0, 55, by = 5)))
+cant_ofena_filtro5min <- nrow(data_ofena)
+
+
+```
+
+
+```{r}
+# separar variables ofena
+
+#----------- TEMPERATURA
+
+data_temperatura_ofena <- data_ofena %>% select(Hora, Fecha, TemperatureOut)
+cant_original_temperatura_ofena <- nrow(data_temperatura_ofena)
+cant_na_temperatura_ofena <- sum(is.na(data_temperatura$TemperatureOut))
+data_temperatura_ofena <- na.omit(data_temperatura_ofena)
+#----------- PRESION
+data_presion_ofena <- data_ofena %>% select(Hora, Fecha, RelativePressure.hPa.)
+cant_original_presion_ofena <- nrow(data_presion_ofena)
+cant_na_presion_ofena <- sum(is.na(data_presion_ofena))
+data_presion_ofena <- na.omit(data_presion_ofena)
+#-----------HUMEDAD
+data_humedad_ofena <- data_ofena %>% select(Hora, Fecha, Humidity...)
+cant_original_humedad_ofena <- nrow(data_humedad_ofena)
+cant_na_humedad_ofena <- sum(is.na(data_humedad_ofena$Humidity...))
+data_humedad_ofena <- na.omit(data_humedad_ofena)
+#----------- VELOCIDAD VIENTO
+data_velviento_ofena <- data_ofena %>% select(Hora, Fecha, WindSpeed.km.hr.)
+cant_original_velviento_ofena <- nrow(data_velviento_ofena)
+cant_na_velviento_ofena <- sum(is.na(data_velviento_ofena))
+data_velviento_ofena <- na.omit(data_velviento_ofena)
+#----------- DIRECCION VIENTO
+data_dirviento_ofena <- data_ofena %>% select(Hora, Fecha, Wind.Direction....)
+cant_original_dirviento_ofena <- nrow(data_dirviento_ofena)
+cant_na_dirviento_ofena <- sum(is.na(data_dirviento_ofena))
+data_dirviento_ofena <- na.omit(data_dirviento_ofena)
+
+
+
+print(cant_original_humedad_ofena)
+print(cant_na_humedad_ofena)
+```
+
+```{r}
+#------------ FECHAS RECOLECTADAS OFENA
+# fechas de mediciones recolectadas por la estacion OFENA
+data_ofena_fecha <- data_ofena %>%
+    group_by(Fecha) %>%
+    summarise()
+
+data_ofena_fecha
+
+```
+
+```{r, include=FALSE}
+#---------------------FUNCION PARA DETERMINAR LAS SERIES POR VARIABLE
+
+series_variable <- function(data_set, precision, nombreColumnaMedicion, dataset_fechas) {
+    dta_serie <- data_frame(FechaInicio = c(), HoraIncio = c(), FechaFin = c(), HoraInicio = c(), CantDatos = c())
+    for (i in 1:nrow(dataset_fechas)) {
+        dta_filtrada <- data_set %>% filter(Fecha == dataset_fechas$Fecha[i])
+        # recorrer el data frame filtrado
+        medicion_obj <- dta_filtrada[[nombreColumnaMedicion]][1]
+
+        # dataset para guardar las mediciones que se encuentran en el rango de 1 grado
+
+        dta_filtrada_rango <- data.frame()
+
+        for (j in 1:nrow(dta_filtrada)) {
+            # obtiene la diferencia absoluta para determinar si se encuentra dentro del rango de presicion del sensor
+            dif_medicion_abs <- abs(medicion_obj - dta_filtrada[[nombreColumnaMedicion]][j])
+            if (dif_medicion_abs <= precision) {
+                dta_filtrada_rango <- rbind(dta_filtrada_rango, dta_filtrada[j, ])
+            } else {
+                # vaciar el dataset
+                if (nrow(dta_filtrada_rango) > 10) {
+                    # Agregar un fila con la fecha de inicio del primer elemento del dataset
+                    dta_serie <- rbind(dta_serie, data_frame(FechaInicio = dta_filtrada_rango$Fecha[1], HoraInicio = dta_filtrada_rango$Hora[1], FechaFin = dta_filtrada_rango$Fecha[nrow(dta_filtrada_rango)], HoraFin = dta_filtrada_rango$Hora[nrow(dta_filtrada_rango)], CantDatos = nrow(dta_filtrada_rango)))
+                }
+                # guardar la serie en el dataset
+                # continua al siguiente indice
+                medicion_obj <- dta_filtrada[[nombreColumnaMedicion]][j]
+                dta_filtrada_rango <- data.frame()
+                # return a markdown with the data
+                next
+            }
+        }
+    }
+    return(dta_serie)
+}
+```
+
+
+```{r}
+#----------- SERIES POR VARIABLE
+#------ TEMPERARUTA
+# convertir de c a f
+data_temperatura_ofena <- data_temperatura_ofena %>% mutate(TemperatureOut = (TemperatureOut * 9 / 5) + 32)
+dta_serie_temperatura <- series_variable(data_temperatura_ofena, 1, "TemperatureOut", data_ofena_fecha)
+# convertir de f a c
+data_temperatura_ofena <- data_temperatura_ofena %>% mutate(TemperatureOut = (TemperatureOut - 32) * 5 / 9)
+dta_serie_temperatura
+#------ PRESION
+# valor precision segun manual (+-)0.08 inHg
+# conversion de hPa a inHg
+data_presion_ofena <- data_presion_ofena %>% mutate(RelativePressure.hPa. = RelativePressure.hPa. * 0.0295301)
+data_serie_presion <- series_variable(data_presion_ofena, 0.08, "RelativePressure.hPa.", data_ofena_fecha)
+# conversion de inHg a hPa
+data_presion_ofena <- data_presion_ofena %>% mutate(RelativePressure.hPa. = RelativePressure.hPa. / 0.0295301)
+data_serie_presion
+#------ HUMEDAD
+data_serie_humedad <- series_variable(data_humedad_ofena, 5, "Humidity...", data_ofena_fecha)
+data_serie_humedad
+#------ VELOCIDAD VIENTO
+data_serie_velviento <- series_variable(data_velviento_ofena, 5, "WindSpeed.km.hr.", data_ofena_fecha)
+data_serie_velviento
+#------ DIRECCION VIENTO
+data_serie_dirviento <- series_variable(data_dirviento_ofena, 10, "Wind.Direction....", data_ofena_fecha)
+data_serie_dirviento
+```
+
+```{r}
+data_temp_orignal_boxplot <- ggplot(data_temperatura, aes(x = "", y = TemperatureOut)) +
+    geom_boxplot(outlier.shape = NA, aes(fill = "Boxplot")) +
+    geom_jitter(width = 0.2, aes(color = "Puntos")) +
+    coord_flip() +
+    scale_fill_manual(name = "Leyenda", values = c("Boxplot" = "skyblue")) +
+    scale_color_manual(name = "Leyenda", values = c("Puntos" = "green")) +
+    labs(
+        title = "Distribución de Mediciones",
+        x = "Grupo",
+        y = "Medición"
+    ) +
+    theme_minimal()
+
+
+```
+
+# Análisis de Datos Meteorológicos
+
+## Información Complementaria
+
+### Precisión
+
+Cualidad de un instrumento por la que tiende a dar una lectura muy proxima unas a otras, es decir **el grado de dispersión** de las mismas.
+
+El término precisón se considera sinónimo de **repetibilidad**.
+
+### Repetibilidad
+
+Es la capacidad de reproducción de las posiciones de la pluma o del indice o de la señal de salidad del instrumento, al medir repetidamente valores indénticos de la variable en **las mismas condiciones de servicio y el mismo sentido de variación**.
+
+### Exactidud
+
+Cualidad de un instrumento de medida por la que tiende a dar lecturas próximas al valor verdadero de la mangnitud medida; es decir el grado de conformidad de un valor indicado a un valor estándar acteptado o **valor ideal** .
+
+## Antecedentes
+
+-   Se ha recolectado información de la estación meteorológica OFENA (estación patrón), así como la de la estación WEMA (estación a prueba).
+-   Los datos recolectados por ambas estaciones fueron obtenidos en condiciones no controladas (expuesta al entorno).
+-   Según las bibliografias consultadas, para las pruebas de precisión se requiere que estas se realicen en condiciones controladas, sin embargo debido a la naturaleza de los datos y a la no disponibilidad para realizar tales pruebas en dichas condiciones, la exposición de los datos a las ecuaciones que permiten estimar la precisión y exactitud de los sensores daría como resultado error en la estimación.
+-   Se tienen en consideración fórmulas como error relativo, error absoluto y error porcentual que sirva como ayuda para la estimación de la precisión y exactitud de los sensores.
+
+## Objetivo del Plan de Acción
+
+-   Proponer un plan de acción que permita elegir las muestras para la estimación de la extactitud y precisión de los sensores de la estación WEMA.
+-   Conocer si las ecuaciones propuestas son adecuadas para la estimación de la precisión y exactitud de los sensores.
+-   Definir qué formulas se utilizarán para la estimación de la precisión y exactitud de los sensores.
+
+## Problemática
+
+Debido a que las pruebas de precisión requieren de condiciones controladas, de las que se pueda garantizar la repetibilidad de las mediciones. Así pues si se analizarán los datos en la forma en que están constituidos originalmente se obtendrían errores en la estimación de la precisión y exactitud de los sensores de la estación WEMA.
+
+A contiuación se muestra un ejemplo de la población de datos recolectados por la estación OFENA (estación patrón).
+
+```{r ,echo=FALSE, fig.cap= "Gráfica de desviación absoluta de temperatura de la estación WEMA, Autoría propia", fig.width=10}
+data_temp_orignal_boxplot
+```
+
+Como se puede apreciar en el gráfico anterior, la población de datos recolectados por la estación OFENA presenta una alta dispersión debido a la naturaleza de los mismos, pues al estar los instrumentos de mediciones expuestos a condiciones no constrolada, se obtienen mediciones que no cumplen con las condiciones de precisión y exactitud que se requieren para realizar las pruebas de precisión. de tal forma que la interpretación de los datos en su estado original no permitiría obtener resultados confiables.
+
+## Plan de Acción
+
+Se propone exponer los datos recolectados por la estación OFENA (estación patrón) a un proceso de filtrado que permita seleccionar muestras de toda la población de datos, que cumplan con un rango de precisión definidos por las características de los sensores de la estación OFENA.
+
+Con esto se busca obtener conjuntos de datos que cumplan con las condiciones que se requieren para realizar los laboratorios de precisión y exactitud con el fin de determinar los grados de precisión y exactitud de los sensores de la estación WEMA.
+
+A continuación se describe el algoritmo que se propone para la selección de las muestras:
+
+1.  Obtener el total de mediciones (población) recolectados por la estación OFENA.
+2.  Excluir registros atípicos (valores de medición atípicos o nulos).
+3.  Filtrar los datos de tal forma que se obtenan solo los registros donde la hora de realización de la medición sea múltiplo de 5 (mediciones en intervalos de 5 minutos).
+4.  Obtener las diferentes fechas en las que se realizaron las mediciones.
+5.  Para cada fecha, obtener las mediciones para el sensor en cuestión (temperatura, humedad, velocidad del viento, dirección del viento).
+6.  para cada fecha obtener el conjunto de datos que fueron medidos en la fecha en cuestión.
+7.  Para cada conjunto de datos obtenido, se procede a realizar el siguiente proceso:
+    1.  Se obtiene la primera medición del conjunto de datos.
+    2.  Se obtiene la diferencia absoluta entre la primera medición y las demás mediciones del conjunto de datos.
+    3.  Si la diferencia absoluta es menor o igual al valor de precisión que dispone el sensor ( por ejemplo \[+-\] 1), se procede a guardar la medición en un conjunto de datos que cumpla con el rango de precisión.
+    4.  Si la diferencia absoluta es mayor al rango que dispone el sensor, se procede a guardar el conjunto de datos que cumpla con el rango de precisión y se procede a guardar la serie de mediciones en un conjunto de datos que cumpla con el rango de precisión.
+    5.  Se procede a obtener la siguiente medición y se repite el proceso. Los conjuntos de datos obtenidos son denominados series de datos reales, pues estos datos serán tomados como referencia para la realización de las pruebas de precisión y exactitud de los sensores de la estación WEMA.
+8.  Se obtienen los conjuntos de datos de la estación WEMA tomando en consideración las fechas en las que se realizaron las mediciones de las series extraídas de la estación OFENA.
+9.  Se procede a realizar los calculos de:
+    1.  Error absoluto: representa la diferencia entre el valor real y el valor medido, su finalidad es indicar si el error se encuentra dentro del rango que proporciona el fabricante del instrumento, cuanto menor sea el error absoluto, mayor será la exactitud del instrumento. De igual forma cuanto si el error absoluto se encuentra dentro del rango de precisión, significa que las mediciones son precisas.
+    2.  Error relativo: compara el error absoluto con el valor real proporcionado por el instrumento patron, de tal forma que se brinde una idea de la magnitud del error en proporción al valor real.
+    3.  Error porcentual: Expresa el error relativo en forma porcentual para una facil interpretación.
+    4.  Coeficiente de variación: permite comparar la variabilidad entre conjuntos de datos con diferentes unidades o escalas. dichos calculos permiten obtener una estimación de la exactitud y permite tener una idea de la precisión de los sensores de la estación WEMA
+10. Se procede a realizar la comparación de las mediciones de ambas estaciones de forma gráfica en cada una de las series de datos obtenidas con el fin de poder visualizar la precisión y exactitud de los sensores de la estación WEMA. Para ello se consideraron los siguientes gráficos.
+    1.  **Gráfico de barras de error absoluto**: permite visualizar la magnitud del error absoluto en las mediciones. En este caso valores altos de error absoluto indican que las mediciones de la estación WEMA no son precisas.
+    2.  **Gráfico de dispersión de mediciones**: permite visualizar la dispersión de las mediciones de la estación WEMA con respecto a las mediciones de la estación OFENA; así pues, si los puntos de la medición está muy cerca de los valores reales, significa que la exactitud; Por el contrario si hay mucha separación, indica un mayor error.
+    3.  **Histograma de error absoluto**: permite visualizar la distribución de los errores absolutos en las mediciones de la estación WEMA, de tal forma que se pueda tener una idea de la magnitud de los errores en las mediciones. Si la mayoría de los errores se encuentra cerca de cero, significa que las mediciones son precisas, si existen un rango amplio de errores (distribución dispersa), indica una baja precisión ya que las mediciones varían mucho,por el contrario si hay valores altos en una dirección, significa que el sensor carece de exactitud.
+
+## Resultados
+
+| Descripcion | Valor |
+|--------------------------------------------|----------------------------|
+| Población total sin limpieza | `r cant_ofena_sinLimpiar` |
+| Población filtrada en intervalos de 5 minutos | `r cant_ofena_filtro5min` |
+| Población total sin Datos Nulos | `r cant_na_temperatura_ofena` |
+
+: Datos obtenidos implementado el algortimo mencionado respecto a la variable temperatura.
+
+```{r, echo=FALSE}
+library(knitr)
+kable(data_ofena_fecha, caption = "Fechas de mediciones recolectadas por la estación OFENA")
+
+```
+
+En el siguiente apartado se presenta una tabla con las fechas en las que se realizaron las mediciones y las series de datos que cumplen con el rango de precisión de +-1°C. con un total de `r nrow(dta_serie)` series recolectadas, dichas series comprenden solo aquellas que contienen un numero mayores a 10 mediciones.
+
+```{r, echo=FALSE}
+library(knitr)
+kable(dta_serie, caption = "Series de datos dentro del rango de precisión (+-1°C)")
+```
+
+## Series de datos OFENA filtrados según el rango de precisión (Pimeras 4 series)
+
+```{r, echo=FALSE }
+library(ggplot2)
+library(knitr)
+library(dplyr)
+for (i in 1:nrow(dta_serie)) {
+    reg_serie_temp <- dta_serie[i, ]
+    muestra <- data_temperatura %>% filter(Fecha >= reg_serie_temp$FechaInicio & Fecha <= reg_serie_temp$FechaFin & Hora >= reg_serie_temp$HoraInicio & Hora <= reg_serie_temp$HoraFin)
+    # verificar que la serie tiene la misma cantidad de registros que la serie ofena
+
+    ## rederizar tabla  en markdown
+    #| label: tbl-planets
+    #| tbl-cap: Astronomical object
+    # print(kable(muestra, caption = paste("Serie de datos, Outdooor.Temperatur...C. corresponde a las mediciones tomadas por el sensor de temperatura de la estación OFENA, autoría propia. ", i)))
+    # medidas de tendencia central
+    # print(kable(muestra %>% summarise(media = mean(TemperatureOut), mediana = median(TemperatureOut), moda = as.numeric(names(sort(-table(TemperatureOut))[1])), desviacion = sd(TemperatureOut)), caption = paste("Medidas de tendencia central Serie de datos ", i)))
+}
+```
+
+## Series datos WEMA filtrados según las series de datos OFENA recopilado
+
+A continuación se realizará el filtrado de los datos de la estación WEMA, tomando en consideración las fechas en las que se realizaron las mediciones de las series extraídas de la estación OFENA. En este caso se está suponiendo que las series de datos de OFENA obtenidas anteriormente como referencia se realizan en condiciones controladas.
+
+Posteriormente Realizará el cálculo de los errores relativos, absolutos y porcentuales de las mediciones de la estación WEMA con respecto a las mediciones de la estación OFENA; esto con la finalidad de poder obtener una estimación de la precisión y exactitud tanto por medios gráficos como numéricos.
+
+```{r, echo=FALSE}
+errorAbsoluto <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
+    return(
+        abs(dataset[[nombreColValorAprueba]] - dataset[[nombreColValorReal]])
+    )
+}
+
+errorRelativo <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
+    return(abs(dataset[[nombreColValorAprueba]] - dataset[[nombreColValorReal]]) / dataset[[nombreColValorReal]])
+}
+
+errorPorcentual <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
+    return(errorRelativo(dataset, nombreColValorReal, nombreColValorAprueba) * 100)
+}
+
+desviacionAbs <- function(dataset, nombreColValorAprueba) {
+    # promedio
+    prom <- mean(dataset[[nombreColValorAprueba]])
+    # desviacion abs
+    return(abs(dataset[[nombreColValorAprueba]] - prom))
+}
+
+desviacionMedia <- function(dataset, nombreColValorAprueba) {
+    return(mean(desviacionAbs(dataset, nombreColValorAprueba)))
+}
+
+
+```
+
+```{r, echo=FALSE}
+library(dplyr)
+library(knitr)
+
+# Leer los datos de la estación WEMA
+wema_temp <- read.csv("C:/Users/wesli/Downloads/Mediciones_prueba_02042025.csv")
+wema_temp <- wema_temp %>% select(Fecha, Hora, medicion)
+
+print(paste("Cantidad de mediciones de la estación WEMA", nrow(wema_temp)))
+print(paste("Cantidad de registros nulos de la estación WEMA", nrow(wema_temp[is.na(wema_temp$medicion), ])))
+wema_temp <- wema_temp %>% na.omit()
+
+# Asegurarse de que la columna Hora esté en el formato correcto
+wema_temp$Hora <- format(as.POSIXct(wema_temp$Hora, format = "%H:%M:%S"), format = "%H:%M:%S")
+
+# filtrar por intervalos de 5 minutos
+wema_temp <- wema_temp %>% filter(format(as.POSIXct(wema_temp$Hora, format = "%H:%M:%S"), "%M") %in% sprintf("%02d", seq(0, 55, by = 5)))
+
+# Ordenar los datos por fecha y hora
+wema_temp <- wema_temp %>% mutate(Fecha = as.Date(Fecha, format = "%Y-%m-%d"))
+wema_temp <- wema_temp %>% arrange(Fecha, Hora)
+
+# Obtener los subconjuntos de datos de la estación WEMA
+dta_serie$CoefVariacionOFENA <- NA
+dta_serie$CoefVariacionWEMA <- NA
+seriesDescartadas <- data.frame(
+    FechaInicio = c(),
+    HoraInicio = c(),
+    FechaFin = c(),
+    HoraFin = c(),
+    CantDatosOfena = c(),
+    CantDatosWema = c(),
+    Diferencia = c()
+)
+for (i in 1:nrow(dta_serie)) {
+    reg_serie_temp <- dta_serie[i, ]
+
+    muestra_ofena <- data_temperatura %>% filter(Fecha >= reg_serie_temp$FechaInicio & Fecha <= reg_serie_temp$FechaFin & Hora >= reg_serie_temp$HoraInicio & Hora <= reg_serie_temp$HoraFin)
+    wema_temp_filtrado <- wema_temp %>% filter(Fecha >= reg_serie_temp$FechaInicio & Fecha <= reg_serie_temp$FechaFin & Hora >= reg_serie_temp$HoraInicio & Hora <= reg_serie_temp$HoraFin)
+    if (nrow(wema_temp_filtrado) != nrow(muestra_ofena)) {
+        seriesDescartadas <- rbind(seriesDescartadas, data_frame(FechaInicio = reg_serie_temp$FechaInicio, HoraInicio = reg_serie_temp$HoraInicio, FechaFin = reg_serie_temp$FechaFin, HoraFin = reg_serie_temp$HoraFin, CantDatosOfena = reg_serie_temp$CantDatos, CantDatosWema = nrow(wema_temp_filtrado), Diferencia = (nrow(wema_temp_filtrado) - nrow(muestra_ofena))))
+        next
+    }
+    # unir wema con ofena
+    wema_ofena <- inner_join(muestra_ofena, wema_temp_filtrado, by = c("Fecha", "Hora"))
+
+    # calculos de errores
+    wema_ofena <- wema_ofena %>% mutate(
+        ErrorAbsoluto = errorAbsoluto(wema_ofena, "TemperatureOut", "medicion"),
+        ErrorRelativo = errorRelativo(wema_ofena, "TemperatureOut", "medicion"),
+        ErrorPorcentual = errorPorcentual(wema_ofena, "TemperatureOut", "medicion"),
+    )
+    print(kable(wema_ofena, caption = paste("Serie de datos WEMA y OFENA ", i, ".La columna medicion corresponde a las mediciones de la estación WEMA y la columna TemperatureOut corresponde a las mediciones de la estación OFENA, autoría propia.")))
+    # mostrar las mediciones en un grafico de densidad para la serie i
+    print(ggplot(wema_ofena, aes(x = Hora)) +
+        geom_point(aes(y = TemperatureOut, color = "Real"), size = 3) +
+        geom_point(aes(y = medicion, color = "Medición"), size = 3) +
+        geom_line(aes(y = TemperatureOut, group = 1, color = "Real")) +
+        geom_line(aes(y = medicion, group = 1, color = "Medición")) +
+        labs(
+            title = "Comparación entre temperatura real y medición",
+            y = "Temperatura (°C)", x = "Hora"
+        ) +
+        theme_minimal() +
+        scale_color_manual(values = c("Real" = "red", "Medición" = "blue")))
+    print(ggplot(wema_ofena, aes(x = Hora, y = ErrorAbsoluto)) +
+        geom_bar(stat = "identity", fill = "steelblue") +
+        labs(
+            title = "Error Absoluto en las Mediciones",
+            y = "Error Absoluto (°C)", x = "Hora"
+        ) +
+        theme_minimal())
+
+    print(ggplot(wema_ofena, aes(x = ErrorAbsoluto)) +
+        geom_histogram(fill = "blue", bins = 10, alpha = 0.7) +
+        labs(
+            title = "Distribución del Error Absoluto",
+            x = "Error Absoluto (°C)", y = "Frecuencia"
+        ) +
+        theme_minimal())
+    # agregar medidas de ofena
+    # calcular el coeficiente de variacion
+    coef_variacion_ofena <- (sd(wema_ofena$TemperatureOut) / mean(muestra_ofena$TemperatureOut))
+    coef_variacion_wema <- (sd(wema_ofena$medicion) / mean(wema_temp$medicion))
+    # agrergar el coeficiente de variacion a la tabla dta_serie en la fila i
+    dta_serie[i, ]$CoefVariacionOFENA <- coef_variacion_ofena
+    dta_serie[i, ]$CoefVariacionWEMA <- coef_variacion_wema
+}
+```
+
+```{r,echo=FALSE}
+
+library(knitr)
+
+kable(seriesDescartadas, caption = "Series de datos descartadas que no cumplen con la cantidad de mediciones respecto a las series OFENA", )
+```
+
+## Resultados de las series de datos WEMA filtrados segun las series de datos OFENA recopilado
+
+Se presentan los coeficiente de variación de las mediciones de la estación WEMA así como las mediciones de la estación OFENA en las series de datos obtenidas anteriormente (en este caso se realizó el cálculo para 2 series ).
+
+```{r, echo=FALSE}
+kable(dta_serie, caption = "Coeficiente de variación de las series de datos WEMA y OFENA, Autoría propia")
+```
+
+## Consultas
+
+1.  ¿Con la fórmulas propuestas se puede considerar que se obtendrán resultados confiables respecto a la precisión de las mediciones?
+2.  ¿Sabiendo la naturaleza de los datos, se pueden utilizar medidas de dispersión como (desviación estándar, desviación absoluta) para la estimación de la precisión de los sensores?
+3.  ¿Qué otros métodos se pueden utilizar para la estimación de la precisión y exactitud de los sensores?
+4.  ¿Desde el punto de vista estadísticos y en el contexto del filtrado de muestras que se propone, se puede considerar que los datos obtenidos son confiables?
+
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+data_ofena <- read.csv("C:/Users/wesli/Downloads/ambient-weather-20241219-20250131 (1).csv")
+
+
+cant_ofena_sinLimpiar <- nrow(data_ofena)
+# formatear fechas en dataset OFENA
+data_ofena$SimpleDate <- gsub("-", "/", data_ofena$SimpleDate)
+data_ofena$SimpleDate <- as.POSIXct(data_ofena$SimpleDate, format = "%Y/%m/%d %H:%M")
+data_ofena$SimpleDate <- format(data_ofena$SimpleDate, "%m/%d/%Y %H:%M")
+data_ofena$SimpleDate <- as.POSIXct(data_ofena$SimpleDate, format = "%m/%d/%Y %H:%M")
+data_ofena <- data_ofena %>% mutate(Fecha = as.Date(SimpleDate, format = "%Y-%m-%d"), Hora = format(as.POSIXct(SimpleDate), format = "%H:%M:%S"))
+
+
+
+# ordenar los datos por fecha y hora
+data_ofena <- data_ofena %>% arrange(Fecha, Hora)
+data_ofena <- data_ofena %>% filter(format(SimpleDate, "%M") %in% sprintf("%02d", seq(0, 55, by = 5)))
+cant_ofena_filtro5min <- nrow(data_ofena)
+data_humedad <- data_ofena %>% select(Hora, Fecha, Humidity...)
+data_humeda <- na.omit(data_humedad)
+data_temperatura <- data_ofena %>% select(Hora, Fecha, TemperatureOut)
+# convertir de c a f
+data_temperatura <- data_temperatura %>% mutate(TemperatureOut = (TemperatureOut * 9 / 5) + 32)
+data_temperatura <- na.omit(data_temperatura)
+cant_na_temperatura_ofena <- nrow(data_temperatura)
+data_temp_orignal_boxplot <- ggplot(data_temperatura, aes(x = "", y = TemperatureOut)) +
+    geom_boxplot(outlier.shape = NA, aes(fill = "Boxplot")) +
+    geom_jitter(width = 0.2, aes(color = "Puntos")) +
+    coord_flip() +
+    scale_fill_manual(name = "Leyenda", values = c("Boxplot" = "skyblue")) +
+    scale_color_manual(name = "Leyenda", values = c("Puntos" = "green")) +
+    labs(
+        title = "Distribución de Mediciones",
+        x = "Grupo",
+        y = "Medición"
+    ) +
+    theme_minimal()
+
+
+
+data_velocidad <- data_ofena %>% select(Hora, Fecha, Wind.Speed..km.hr.)
+data_velocidad <- na.omit(data_velocidad)
+data_direccion <- data_ofena %>% select(Hora, Wind.Direction....)
+data_direccion <- na.omit(data_direccion)
+
+# fechas de mediciones recolectadas por la estacion OFENA
+data_ofena_fecha <- data_ofena %>%
+    group_by(Fecha) %>%
+    summarise()
+
+data_ofena_fecha
+dta_serie <- data_frame(FechaInicio = c(), HoraIncio = c(), FechaFin = c(), HoraInicio = c(), CantDatos = c())
+for (i in 1:nrow(data_ofena_fecha)) {
+    # tempeatura
+    print(data_ofena_fecha$Fecha[i])
+    dta_filtrada_temp <- data_temperatura %>% filter(Fecha == data_ofena_fecha$Fecha[i])
+    print(nrow(dta_filtrada_temp))
+    # recorrer el data frame filtrado
+    medicion_obj <- dta_filtrada_temp$TemperatureOut[1]
+
+    # dataset para guardar las mediciones que se encuentran en el rango de 1 grado
+
+    dta_filtrada_temp_rango <- data.frame()
+
+    for (j in 1:nrow(dta_filtrada_temp)) {
+        # obtiene la diferencia absoluta para determinar si se encuentra dentro del rango de presicion del sensor
+        dif_medicion_abs <- abs(medicion_obj - dta_filtrada_temp$TemperatureOut[j])
+        if ((dif_medicion_abs > -1) && (dif_medicion_abs <= 1)) {
+            dta_filtrada_temp_rango <- rbind(dta_filtrada_temp_rango, dta_filtrada_temp[j, ])
+        } else {
+            # vaciar el dataset
+            print("cant de mediciones en el rango de 1 grado")
+            print(nrow(dta_filtrada_temp_rango))
+            if (nrow(dta_filtrada_temp_rango) > 10) {
+                print(dta_filtrada_temp_rango)
+                # Agregar un fila con la fecha de inicio del primer elemento del dataset
+                dta_serie <- rbind(dta_serie, data_frame(FechaInicio = dta_filtrada_temp_rango$Fecha[1], HoraInicio = dta_filtrada_temp_rango$Hora[1], FechaFin = dta_filtrada_temp_rango$Fecha[nrow(dta_filtrada_temp_rango)], HoraFin = dta_filtrada_temp_rango$Hora[nrow(dta_filtrada_temp_rango)], CantDatos = nrow(dta_filtrada_temp_rango)))
+            }
+            print("Termina la serie =====================================")
+            # guardar la serie en el dataset
+            # continua al siguiente indice
+            print("siguiente indice****")
+            medicion_obj <- dta_filtrada_temp$TemperatureOut[j]
+            dta_filtrada_temp_rango <- data.frame()
+            # return a markdown with the data
+
+            next
+        }
+    }
+}
+# convertir de f a c
+data_temperatura <- data_temperatura %>% mutate(TemperatureOut = (TemperatureOut - 32) * 5 / 9)
+
+```
+
+# Análisis de Datos Meteorológicos
+
+## Información Complementaria
+
+### Precisión
+
+Cualidad de un instrumento por la que tiende a dar una lectura muy proxima unas a otras, es decir **el grado de dispersión** de las mismas.
+
+El término precisón se considera sinónimo de **repetibilidad**.
+
+### Repetibilidad
+
+Es la capacidad de reproducción de las posiciones de la pluma o del indice o de la señal de salidad del instrumento, al medir repetidamente valores indénticos de la variable en **las mismas condiciones de servicio y el mismo sentido de variación**.
+
+### Exactidud
+
+Cualidad de un instrumento de medida por la que tiende a dar lecturas próximas al valor verdadero de la mangnitud medida; es decir el grado de conformidad de un valor indicado a un valor estándar acteptado o **valor ideal** .
+
+## Antecedentes
+
+-   Se ha recolectado información de la estación meteorológica OFENA (estación patrón), así como la de la estación WEMA (estación a prueba).
+-   Los datos recolectados por ambas estaciones fueron obtenidos en condiciones no controladas (expuesta al entorno).
+-   Según las bibliografias consultadas, para las pruebas de precisión se requiere que estas se realicen en condiciones controladas, sin embargo debido a la naturaleza de los datos y a la no disponibilidad para realizar tales pruebas en dichas condiciones, la exposición de los datos a las ecuaciones que permiten estimar la precisión y exactitud de los sensores daría como resultado error en la estimación.
+-   Se tienen en consideración fórmulas como error relativo, error absoluto y error porcentual que sirva como ayuda para la estimación de la precisión y exactitud de los sensores.
+
+## Objetivo del Plan de Acción
+
+-   Proponer un plan de acción que permita elegir las muestras para la estimación de la extactitud y precisión de los sensores de la estación WEMA.
+-   Conocer si las ecuaciones propuestas son adecuadas para la estimación de la precisión y exactitud de los sensores.
+-   Definir qué formulas se utilizarán para la estimación de la precisión y exactitud de los sensores.
+
+## Problemática
+
+Debido a que las pruebas de precisión requieren de condiciones controladas, de las que se pueda garantizar la repetibilidad de las mediciones. Así pues si se analizarán los datos en la forma en que están constituidos originalmente se obtendrían errores en la estimación de la precisión y exactitud de los sensores de la estación WEMA.
+
+A contiuación se muestra un ejemplo de la población de datos recolectados por la estación OFENA (estación patrón).
+
+```{r ,echo=FALSE, fig.cap= "Gráfica de desviación absoluta de temperatura de la estación WEMA, Autoría propia", fig.width=10}
+data_temp_orignal_boxplot
+```
+
+Como se puede apreciar en el gráfico anterior, la población de datos recolectados por la estación OFENA presenta una alta dispersión debido a la naturaleza de los mismos, pues al estar los instrumentos de mediciones expuestos a condiciones no constrolada, se obtienen mediciones que no cumplen con las condiciones de precisión y exactitud que se requieren para realizar las pruebas de precisión. de tal forma que la interpretación de los datos en su estado original no permitiría obtener resultados confiables.
+
+## Plan de Acción
+
+Se propone exponer los datos recolectados por la estación OFENA (estación patrón) a un proceso de filtrado que permita seleccionar muestras de toda la población de datos, que cumplan con un rango de precisión definidos por las características de los sensores de la estación OFENA.
+
+Con esto se busca obtener conjuntos de datos que cumplan con las condiciones que se requieren para realizar los laboratorios de precisión y exactitud con el fin de determinar los grados de precisión y exactitud de los sensores de la estación WEMA.
+
+A continuación se describe el algoritmo que se propone para la selección de las muestras:
+
+1.  Obtener el total de mediciones (población) recolectados por la estación OFENA.
+2.  Excluir registros atípicos (valores de medición atípicos o nulos).
+3.  Filtrar los datos de tal forma que se obtenan solo los registros donde la hora de realización de la medición sea múltiplo de 5 (mediciones en intervalos de 5 minutos).
+4.  Obtener las diferentes fechas en las que se realizaron las mediciones.
+5.  Para cada fecha, obtener las mediciones para el sensor en cuestión (temperatura, humedad, velocidad del viento, dirección del viento).
+6.  para cada fecha obtener el conjunto de datos que fueron medidos en la fecha en cuestión.
+7.  Para cada conjunto de datos obtenido, se procede a realizar el siguiente proceso:
+    1.  Se obtiene la primera medición del conjunto de datos.
+    2.  Se obtiene la diferencia absoluta entre la primera medición y las demás mediciones del conjunto de datos.
+    3.  Si la diferencia absoluta es menor o igual al valor de precisión que dispone el sensor ( por ejemplo \[+-\] 1), se procede a guardar la medición en un conjunto de datos que cumpla con el rango de precisión.
+    4.  Si la diferencia absoluta es mayor al rango que dispone el sensor, se procede a guardar el conjunto de datos que cumpla con el rango de precisión y se procede a guardar la serie de mediciones en un conjunto de datos que cumpla con el rango de precisión.
+    5.  Se procede a obtener la siguiente medición y se repite el proceso. Los conjuntos de datos obtenidos son denominados series de datos reales, pues estos datos serán tomados como referencia para la realización de las pruebas de precisión y exactitud de los sensores de la estación WEMA.
+8.  Se obtienen los conjuntos de datos de la estación WEMA tomando en consideración las fechas en las que se realizaron las mediciones de las series extraídas de la estación OFENA.
+9.  Se procede a realizar los calculos de:
+    1.  Error absoluto: representa la diferencia entre el valor real y el valor medido, su finalidad es indicar si el error se encuentra dentro del rango que proporciona el fabricante del instrumento, cuanto menor sea el error absoluto, mayor será la exactitud del instrumento. De igual forma cuanto si el error absoluto se encuentra dentro del rango de precisión, significa que las mediciones son precisas.
+    2.  Error relativo: compara el error absoluto con el valor real proporcionado por el instrumento patron, de tal forma que se brinde una idea de la magnitud del error en proporción al valor real.
+    3.  Error porcentual: Expresa el error relativo en forma porcentual para una facil interpretación.
+    4.  Coeficiente de variación: permite comparar la variabilidad entre conjuntos de datos con diferentes unidades o escalas. dichos calculos permiten obtener una estimación de la exactitud y permite tener una idea de la precisión de los sensores de la estación WEMA
+10. Se procede a realizar la comparación de las mediciones de ambas estaciones de forma gráfica en cada una de las series de datos obtenidas con el fin de poder visualizar la precisión y exactitud de los sensores de la estación WEMA. Para ello se consideraron los siguientes gráficos.
+    1.  **Gráfico de barras de error absoluto**: permite visualizar la magnitud del error absoluto en las mediciones. En este caso valores altos de error absoluto indican que las mediciones de la estación WEMA no son precisas.
+    2.  **Gráfico de dispersión de mediciones**: permite visualizar la dispersión de las mediciones de la estación WEMA con respecto a las mediciones de la estación OFENA; así pues, si los puntos de la medición está muy cerca de los valores reales, significa que la exactitud; Por el contrario si hay mucha separación, indica un mayor error.
+    3.  **Histograma de error absoluto**: permite visualizar la distribución de los errores absolutos en las mediciones de la estación WEMA, de tal forma que se pueda tener una idea de la magnitud de los errores en las mediciones. Si la mayoría de los errores se encuentra cerca de cero, significa que las mediciones son precisas, si existen un rango amplio de errores (distribución dispersa), indica una baja precisión ya que las mediciones varían mucho,por el contrario si hay valores altos en una dirección, significa que el sensor carece de exactitud.
+
+## Resultados
+
+| Descripcion | Valor |
+|--------------------------------------------|----------------------------|
+| Población total sin limpieza | `r cant_ofena_sinLimpiar` |
+| Población filtrada en intervalos de 5 minutos | `r cant_ofena_filtro5min` |
+| Población total sin Datos Nulos | `r cant_na_temperatura_ofena` |
+
+: Datos obtenidos implementado el algortimo mencionado respecto a la variable temperatura.
+
+```{r, echo=FALSE}
+library(knitr)
+kable(data_ofena_fecha, caption = "Fechas de mediciones recolectadas por la estación OFENA")
+
+```
+
+En el siguiente apartado se presenta una tabla con las fechas en las que se realizaron las mediciones y las series de datos que cumplen con el rango de precisión de +-1°C. con un total de `r nrow(dta_serie)` series recolectadas, dichas series comprenden solo aquellas que contienen un numero mayores a 10 mediciones.
+
+```{r, echo=FALSE}
+library(knitr)
+kable(dta_serie, caption = "Series de datos dentro del rango de precisión (+-1°C)")
+```
+
+## Series de datos OFENA filtrados según el rango de precisión (Pimeras 4 series)
+
+```{r, echo=FALSE }
+library(ggplot2)
+library(knitr)
+library(dplyr)
+for (i in 1:nrow(dta_serie)) {
+    reg_serie_temp <- dta_serie[i, ]
+    muestra <- data_temperatura %>% filter(Fecha >= reg_serie_temp$FechaInicio & Fecha <= reg_serie_temp$FechaFin & Hora >= reg_serie_temp$HoraInicio & Hora <= reg_serie_temp$HoraFin)
+    # verificar que la serie tiene la misma cantidad de registros que la serie ofena
+
+    ## rederizar tabla  en markdown
+    #| label: tbl-planets
+    #| tbl-cap: Astronomical object
+    # print(kable(muestra, caption = paste("Serie de datos, Outdooor.Temperatur...C. corresponde a las mediciones tomadas por el sensor de temperatura de la estación OFENA, autoría propia. ", i)))
+    # medidas de tendencia central
+    # print(kable(muestra %>% summarise(media = mean(TemperatureOut), mediana = median(TemperatureOut), moda = as.numeric(names(sort(-table(TemperatureOut))[1])), desviacion = sd(TemperatureOut)), caption = paste("Medidas de tendencia central Serie de datos ", i)))
+}
+```
+
+## Series datos WEMA filtrados según las series de datos OFENA recopilado
+
+A continuación se realizará el filtrado de los datos de la estación WEMA, tomando en consideración las fechas en las que se realizaron las mediciones de las series extraídas de la estación OFENA. En este caso se está suponiendo que las series de datos de OFENA obtenidas anteriormente como referencia se realizan en condiciones controladas.
+
+Posteriormente Realizará el cálculo de los errores relativos, absolutos y porcentuales de las mediciones de la estación WEMA con respecto a las mediciones de la estación OFENA; esto con la finalidad de poder obtener una estimación de la precisión y exactitud tanto por medios gráficos como numéricos.
+
+```{r, echo=FALSE}
+errorAbsoluto <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
+    return(
+        abs(dataset[[nombreColValorAprueba]] - dataset[[nombreColValorReal]])
+    )
+}
+
+errorRelativo <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
+    return(abs(dataset[[nombreColValorAprueba]] - dataset[[nombreColValorReal]]) / dataset[[nombreColValorReal]])
+}
+
+errorPorcentual <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
+    return(errorRelativo(dataset, nombreColValorReal, nombreColValorAprueba) * 100)
+}
+
+desviacionAbs <- function(dataset, nombreColValorAprueba) {
+    # promedio
+    prom <- mean(dataset[[nombreColValorAprueba]])
+    # desviacion abs
+    return(abs(dataset[[nombreColValorAprueba]] - prom))
+}
+
+desviacionMedia <- function(dataset, nombreColValorAprueba) {
+    return(mean(desviacionAbs(dataset, nombreColValorAprueba)))
+}
+
+
+```
+
+```{r, echo=FALSE}
+library(dplyr)
+library(knitr)
+
+# Leer los datos de la estación WEMA
+wema_temp <- read.csv("C:/Users/wesli/Downloads/Mediciones_prueba_02042025.csv")
+wema_temp <- wema_temp %>% select(Fecha, Hora, medicion)
+
+print(paste("Cantidad de mediciones de la estación WEMA", nrow(wema_temp)))
+print(paste("Cantidad de registros nulos de la estación WEMA", nrow(wema_temp[is.na(wema_temp$medicion), ])))
+wema_temp <- wema_temp %>% na.omit()
+
+# Asegurarse de que la columna Hora esté en el formato correcto
+wema_temp$Hora <- format(as.POSIXct(wema_temp$Hora, format = "%H:%M:%S"), format = "%H:%M:%S")
+
+# filtrar por intervalos de 5 minutos
+wema_temp <- wema_temp %>% filter(format(as.POSIXct(wema_temp$Hora, format = "%H:%M:%S"), "%M") %in% sprintf("%02d", seq(0, 55, by = 5)))
+
+# Ordenar los datos por fecha y hora
+wema_temp <- wema_temp %>% mutate(Fecha = as.Date(Fecha, format = "%Y-%m-%d"))
+wema_temp <- wema_temp %>% arrange(Fecha, Hora)
+
+# Obtener los subconjuntos de datos de la estación WEMA
+dta_serie$CoefVariacionOFENA <- NA
+dta_serie$CoefVariacionWEMA <- NA
+seriesDescartadas <- data.frame(
+    FechaInicio = c(),
+    HoraInicio = c(),
+    FechaFin = c(),
+    HoraFin = c(),
+    CantDatosOfena = c(),
+    CantDatosWema = c(),
+    Diferencia = c()
+)
+for (i in 1:nrow(dta_serie)) {
+    reg_serie_temp <- dta_serie[i, ]
+
+    muestra_ofena <- data_temperatura %>% filter(Fecha >= reg_serie_temp$FechaInicio & Fecha <= reg_serie_temp$FechaFin & Hora >= reg_serie_temp$HoraInicio & Hora <= reg_serie_temp$HoraFin)
+    wema_temp_filtrado <- wema_temp %>% filter(Fecha >= reg_serie_temp$FechaInicio & Fecha <= reg_serie_temp$FechaFin & Hora >= reg_serie_temp$HoraInicio & Hora <= reg_serie_temp$HoraFin)
+    if (nrow(wema_temp_filtrado) != nrow(muestra_ofena)) {
+        seriesDescartadas <- rbind(seriesDescartadas, data_frame(FechaInicio = reg_serie_temp$FechaInicio, HoraInicio = reg_serie_temp$HoraInicio, FechaFin = reg_serie_temp$FechaFin, HoraFin = reg_serie_temp$HoraFin, CantDatosOfena = reg_serie_temp$CantDatos, CantDatosWema = nrow(wema_temp_filtrado), Diferencia = (nrow(wema_temp_filtrado) - nrow(muestra_ofena))))
+        next
+    }
+    # unir wema con ofena
+    wema_ofena <- inner_join(muestra_ofena, wema_temp_filtrado, by = c("Fecha", "Hora"))
+
+    # calculos de errores
+    wema_ofena <- wema_ofena %>% mutate(
+        ErrorAbsoluto = errorAbsoluto(wema_ofena, "TemperatureOut", "medicion"),
+        ErrorRelativo = errorRelativo(wema_ofena, "TemperatureOut", "medicion"),
+        ErrorPorcentual = errorPorcentual(wema_ofena, "TemperatureOut", "medicion"),
+    )
+    print(kable(wema_ofena, caption = paste("Serie de datos WEMA y OFENA ", i, ".La columna medicion corresponde a las mediciones de la estación WEMA y la columna TemperatureOut corresponde a las mediciones de la estación OFENA, autoría propia.")))
+    # mostrar las mediciones en un grafico de densidad para la serie i
+    print(ggplot(wema_ofena, aes(x = Hora)) +
+        geom_point(aes(y = TemperatureOut, color = "Real"), size = 3) +
+        geom_point(aes(y = medicion, color = "Medición"), size = 3) +
+        geom_line(aes(y = TemperatureOut, group = 1, color = "Real")) +
+        geom_line(aes(y = medicion, group = 1, color = "Medición")) +
+        labs(
+            title = "Comparación entre temperatura real y medición",
+            y = "Temperatura (°C)", x = "Hora"
+        ) +
+        theme_minimal() +
+        scale_color_manual(values = c("Real" = "red", "Medición" = "blue")))
+    print(ggplot(wema_ofena, aes(x = Hora, y = ErrorAbsoluto)) +
+        geom_bar(stat = "identity", fill = "steelblue") +
+        labs(
+            title = "Error Absoluto en las Mediciones",
+            y = "Error Absoluto (°C)", x = "Hora"
+        ) +
+        theme_minimal())
+
+    print(ggplot(wema_ofena, aes(x = ErrorAbsoluto)) +
+        geom_histogram(fill = "blue", bins = 10, alpha = 0.7) +
+        labs(
+            title = "Distribución del Error Absoluto",
+            x = "Error Absoluto (°C)", y = "Frecuencia"
+        ) +
+        theme_minimal())
+    # agregar medidas de ofena
+    # calcular el coeficiente de variacion
+    coef_variacion_ofena <- (sd(wema_ofena$TemperatureOut) / mean(muestra_ofena$TemperatureOut))
+    coef_variacion_wema <- (sd(wema_ofena$medicion) / mean(wema_temp$medicion))
+    # agrergar el coeficiente de variacion a la tabla dta_serie en la fila i
+    dta_serie[i, ]$CoefVariacionOFENA <- coef_variacion_ofena
+    dta_serie[i, ]$CoefVariacionWEMA <- coef_variacion_wema
+}
+```
+
+```{r,echo=FALSE}
+
+library(knitr)
+
+kable(seriesDescartadas, caption = "Series de datos descartadas que no cumplen con la cantidad de mediciones respecto a las series OFENA", )
+```
+
+## Resultados de las series de datos WEMA filtrados segun las series de datos OFENA recopilado
+
+Se presentan los coeficiente de variación de las mediciones de la estación WEMA así como las mediciones de la estación OFENA en las series de datos obtenidas anteriormente (en este caso se realizó el cálculo para 2 series ).
+
+```{r, echo=FALSE}
+kable(dta_serie, caption = "Coeficiente de variación de las series de datos WEMA y OFENA, Autoría propia")
+```
+
+## Consultas
+
+1.  ¿Con la fórmulas propuestas se puede considerar que se obtendrán resultados confiables respecto a la precisión de las mediciones?
+2.  ¿Sabiendo la naturaleza de los datos, se pueden utilizar medidas de dispersión como (desviación estándar, desviación absoluta) para la estimación de la precisión de los sensores?
+3.  ¿Qué otros métodos se pueden utilizar para la estimación de la precisión y exactitud de los sensores?
+4.  ¿Desde el punto de vista estadísticos y en el contexto del filtrado de muestras que se propone, se puede considerar que los datos obtenidos son confiables?
