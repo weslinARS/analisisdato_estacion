@@ -15,12 +15,12 @@ output:
 library(dplyr)
 library(ggplot2)
 library(knitr)
-data_ofena <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/data_ofena.csv")
-wema_temp <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesTemperatura.csv")
-wema_humedad <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesHumedad.csv")
-wema_dirviento <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesDirviento.csv")
-wema_presion <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesPresion.csv")
-wema_velviento <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionVelViento.csv")
+data_ofena <- read.csv("/home/wars/Documentos/proyectos/RPROYECTOS/analisisdato_estacion/ultimosdatos/data_ofena.csv")
+wema_temp <- read.csv("/home/wars/Documentos/proyectos/RPROYECTOS/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
+wema_humedad <- read.csv("/home/wars/Documentos/proyectos/RPROYECTOS/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
+wema_dirviento <- read.csv("/home/wars/Documentos/proyectos/RPROYECTOS/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
+wema_presion <- read.csv("/home/wars/Documentos/proyectos/RPROYECTOS/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
+wema_velviento <- read.csv("/home/wars/Documentos/proyectos/RPROYECTOS/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
 
 ```
 
