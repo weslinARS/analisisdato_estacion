@@ -1,6 +1,6 @@
 ---
 title-block-banner: "Análisis de datos Meterológicos"
-subtitle: Propuesta de plan de accion para la estimación de la precisión y exactitud recolectados por la estación meteorológica OFENA
+subtitle:  "Análisis de datos para la determinación de la precisión, exactitud de los datos, así como la disponibilidad de los sensores de medición de la estación WEMA"
 author: "Weslin R. Silva"
 date: "2025-02-04"
 pdf-engine: xelatex
@@ -15,12 +15,12 @@ output:
 library(dplyr)
 library(ggplot2)
 library(knitr)
-data_ofena <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/data_ofena.csv")
-wema_temp <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesTemperatura.csv")
-wema_humedad <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesHumedad.csv")
-wema_dirviento <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesDirviento.csv")
-wema_presion <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionesPresion.csv")
-wema_velviento <- read.csv("C:/Users/wesli/Downloads/ultimosdatos/MedicionVelViento.csv")
+data_ofena <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/data_ofena.csv")
+wema_temp <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
+wema_humedad <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
+wema_dirviento <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
+wema_presion <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
+wema_velviento <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
 
 ```
 
@@ -75,7 +75,10 @@ cant_na_dirviento_ofena <- sum(is.na(data_dirviento_ofena))
 data_dirviento_ofena <- na.omit(data_dirviento_ofena)
 ```
 
+## Fechas con mediciones recolectadas por la estación OFENA
+
 ```{r, echo=FALSE}
+library(tibble)
 #------------ FECHAS RECOLECTADAS OFENA
 # fechas de mediciones recolectadas por la estacion OFENA
 data_ofena_fecha <- data_ofena %>%
@@ -90,76 +93,76 @@ kable(data_ofena_fecha, caption = "Fechas con mediciones recolectadas")
 #---------------------FUNCION PARA DETERMINAR LAS SERIES POR VARIABLE
 
 series_variable <- function(data_set, precision, nombreColumnaMedicion, dataset_fechas) {
-    dta_serie <- data_frame(NoSerie = c(), FechaInicio = c(), HoraIncio = c(), FechaFin = c(), HoraInicio = c(), CantDatos = c())
-    contSerie <- 1
-    for (i in 1:nrow(dataset_fechas)) {
-        dta_filtrada <- data_set %>% filter(Fecha == dataset_fechas$Fecha[i])
-        # recorrer el data frame filtrado
-        medicion_obj <- dta_filtrada[[nombreColumnaMedicion]][1]
+  dta_serie <- tibble(NoSerie = c(), FechaInicio = c(), HoraIncio = c(), FechaFin = c(), HoraInicio = c(), CantDatos = c())
+  contSerie <- 1
+  for (i in 1:nrow(dataset_fechas)) {
+    dta_filtrada <- data_set %>% filter(Fecha == dataset_fechas$Fecha[i])
+    # recorrer el data frame filtrado
+    medicion_obj <- dta_filtrada[[nombreColumnaMedicion]][1]
 
-        # dataset para guardar las mediciones que se encuentran en el rango de 1 grado
+    # dataset para guardar las mediciones que se encuentran en el rango de 1 grado
 
+    dta_filtrada_rango <- data.frame()
+
+    for (j in 1:nrow(dta_filtrada)) {
+      # obtiene la diferencia absoluta para determinar si se encuentra dentro del rango de presicion del sensor
+      dif_medicion_abs <- abs(medicion_obj - dta_filtrada[[nombreColumnaMedicion]][j])
+      if (dif_medicion_abs <= precision) {
+        dta_filtrada_rango <- rbind(dta_filtrada_rango, dta_filtrada[j,])
+      } else {
+        # vaciar el dataset
+        if (nrow(dta_filtrada_rango) > 10) {
+          # Agregar un fila con la fecha de inicio del primer elemento del dataset
+          dta_serie <- rbind(dta_serie, tibble(NoSerie = contSerie, FechaInicio = dta_filtrada_rango$Fecha[1], HoraInicio = dta_filtrada_rango$Hora[1], FechaFin = dta_filtrada_rango$Fecha[nrow(dta_filtrada_rango)], HoraFin = dta_filtrada_rango$Hora[nrow(dta_filtrada_rango)], CantDatos = nrow(dta_filtrada_rango)))
+          contSerie <- contSerie + 1
+        }
+        # guardar la serie en el dataset
+        # continua al siguiente indice
+        medicion_obj <- dta_filtrada[[nombreColumnaMedicion]][j]
         dta_filtrada_rango <- data.frame()
 
-        for (j in 1:nrow(dta_filtrada)) {
-            # obtiene la diferencia absoluta para determinar si se encuentra dentro del rango de presicion del sensor
-            dif_medicion_abs <- abs(medicion_obj - dta_filtrada[[nombreColumnaMedicion]][j])
-            if (dif_medicion_abs <= precision) {
-                dta_filtrada_rango <- rbind(dta_filtrada_rango, dta_filtrada[j, ])
-            } else {
-                # vaciar el dataset
-                if (nrow(dta_filtrada_rango) > 10) {
-                    # Agregar un fila con la fecha de inicio del primer elemento del dataset
-                    dta_serie <- rbind(dta_serie, data_frame(NoSerie = contSerie, FechaInicio = dta_filtrada_rango$Fecha[1], HoraInicio = dta_filtrada_rango$Hora[1], FechaFin = dta_filtrada_rango$Fecha[nrow(dta_filtrada_rango)], HoraFin = dta_filtrada_rango$Hora[nrow(dta_filtrada_rango)], CantDatos = nrow(dta_filtrada_rango)))
-                    contSerie <- contSerie + 1
-                }
-                # guardar la serie en el dataset
-                # continua al siguiente indice
-                medicion_obj <- dta_filtrada[[nombreColumnaMedicion]][j]
-                dta_filtrada_rango <- data.frame()
-
-                # return a markdown with the data
-                next
-            }
-        }
+        # return a markdown with the data
+        next
+      }
     }
-    return(dta_serie)
+  }
+  return(dta_serie)
 }
 ```
 
 ```{r, include=FALSE}
 errorAbsoluto <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
-    return(
+  return(
         abs(dataset[[nombreColValorAprueba]] - dataset[[nombreColValorReal]])
     )
 }
 
 errorRelativo <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
-    valor_real <- dataset[[nombreColValorReal]]
-    valor_aprueba <- dataset[[nombreColValorAprueba]]
+  valor_real <- dataset[[nombreColValorReal]]
+  valor_aprueba <- dataset[[nombreColValorAprueba]]
 
-    # Calcular error relativo, evitando divisiones por 0
-    error <- abs(valor_aprueba - valor_real) / valor_real
+  # Calcular error relativo, evitando divisiones por 0
+  error <- abs(valor_aprueba - valor_real) / valor_real
 
-    # Si el valor real es 0, el error relativo debe ser 0
-    error[valor_real == 0] <- 0
+  # Si el valor real es 0, el error relativo debe ser 0
+  error[valor_real == 0] <- 0
 
-    return(error)
+  return(error)
 }
 
 errorPorcentual <- function(dataset, nombreColValorReal, nombreColValorAprueba) {
-    return(errorRelativo(dataset, nombreColValorReal, nombreColValorAprueba) * 100)
+  return(errorRelativo(dataset, nombreColValorReal, nombreColValorAprueba) * 100)
 }
 
 desviacionAbs <- function(dataset, nombreColValorAprueba) {
-    # promedio
-    prom <- mean(dataset[[nombreColValorAprueba]])
-    # desviacion abs
-    return(abs(dataset[[nombreColValorAprueba]] - prom))
+  # promedio
+  prom <- mean(dataset[[nombreColValorAprueba]])
+  # desviacion abs
+  return(abs(dataset[[nombreColValorAprueba]] - prom))
 }
 
 desviacionMedia <- function(dataset, nombreColValorAprueba) {
-    return(mean(desviacionAbs(dataset, nombreColValorAprueba)))
+  return(mean(desviacionAbs(dataset, nombreColValorAprueba)))
 }
 
 ```
@@ -192,19 +195,72 @@ data_serie_dirviento <- series_variable(data_dirviento_ofena, 10, "Wind.Directio
 
 ```{r,echo=FALSE}
 filtrarNA5min <- function(dataset) {
-    # Asegurarse de que la columna Hora esté en el formato correcto
-    dataset$Hora <- format(as.POSIXct(dataset$Hora, format = "%H:%M:%S"), format = "%H:%M:%S")
+  # Asegurarse de que la columna Hora esté en el formato correcto
+  dataset$Hora <- format(as.POSIXct(dataset$Hora, format = "%H:%M:%S"), format = "%H:%M:%S")
 
-    # filtrar por intervalos de 5 minutos
-    dataset <- dataset %>% filter(format(as.POSIXct(dataset$Hora, format = "%H:%M:%S"), "%M") %in% sprintf("%02d", seq(0, 55, by = 5)))
+  # filtrar por intervalos de 5 minutos
+  dataset <- dataset %>% filter(format(as.POSIXct(dataset$Hora, format = "%H:%M:%S"), "%M") %in% sprintf("%02d", seq(0, 55, by = 5)))
 
-    # Ordenar los datos por fecha y hora
-    dataset <- dataset %>% mutate(Fecha = as.Date(Fecha, format = "%Y-%m-%d"))
-    dataset <- dataset %>% arrange(Fecha, Hora)
-    return(dataset)
+  # Ordenar los datos por fecha y hora
+  dataset <- dataset %>% mutate(Fecha = as.Date(Fecha, format = "%Y-%m-%d"))
+  dataset <- dataset %>% arrange(Fecha, Hora)
+  return(dataset)
 }
 
 ```
+
+
+```{r, echo=FALSE}
+library(dplyr)
+library(lubridate)
+mtbf_calc <- function(tt_funcionamiento, tt_inactividad, no_fallas) {
+  return((tt_funcionamiento - tt_inactividad) / no_fallas)
+}
+mttr_calc <- function(tt_mantenimiento, no_reparaciones) {
+  return(tt_mantenimiento / no_reparaciones)
+}
+
+disponibilidad <- function(t_disponible, t_planificado) {
+  return((t_disponible / t_planificado) * 100)
+}
+disponibilidad_2 <- function(mtbf, mttr) {
+  return(mtbf / (mtbf + mttr))
+}
+tasa_falla <- function(no_fallas, t_operacion) {
+  return(no_fallas / t_operacion)
+}
+fiabilidad <- function(h_dipsonibles, no_fallas) {
+  return(h_dipsonibles / no_fallas)
+}
+encontrar_tiempos_no_disponible <- function(data_prueba) {
+  # obtener fechas con mediciones
+  # convertir datetime a string
+  data_prueba <- data_prueba %>% mutate(FechaHora = as.POSIXct(paste(Fecha, Hora), format = "%Y-%m-%d %H:%M:%S"))
+  data_prueba <- data_prueba %>% mutate(FechaHora = format(FechaHora, "%Y-%m-%d  %H:%M:%S"))
+  data_prueba <- data_prueba %>% mutate(FechaHora = ymd_hms(FechaHora))
+
+  dataset_horas_no_disponibles <- data.frame()
+  # obtener el primer registro
+  reg_anterior <- data_prueba[1,]
+  for (index in 2:nrow(data_prueba)) {
+    # obtener las horas
+    dt_reg_anterior <- reg_anterior$FechaHora
+    dt_reg_actual <- data_prueba[index,]$FechaHora
+    # obtener la diferencia en minutos
+    diferencia_minutos <- as.numeric(difftime(dt_reg_actual, dt_reg_anterior, units = "mins"))
+    # convertir a valor numerico
+    if (diferencia_minutos != 1) {
+      # se ha perdido la serie
+      # obtener la diferencia entre la hora actual y el ultimo registro
+      dataset_horas_no_disponibles <- rbind(dataset_horas_no_disponibles, data.frame(FechaInicioInterrupcion = reg_anterior$Fecha, HoraInicioInterrupcion = reg_anterior$Hora, FechaFinInterrupcion = data_prueba[index,]$Fecha, HoraFinInterrupcion = data_prueba[index,]$Hora, MinutosNoDisponible = diferencia_minutos, CantDatosPerdidos = diferencia_minutos))
+    }
+    reg_anterior <- data_prueba[index,]
+  }
+  return(dataset_horas_no_disponibles)
+}
+
+```
+
 
 ```{r, include=FALSE}
 #-------- FILTRAR DATOS DE CADA VARIABLE WEMA
@@ -237,7 +293,7 @@ wema_velviento <- wema_velviento %>% select(Hora, Fecha, medicion)
 cant_original_velviento_wema <- nrow(wema_velviento)
 cant_na_velviento_wema <- sum(is.na(wema_velviento$medicion))
 wema_velviento <- na.omit(wema_velviento)
-wema_velviento <- wema_velviento
+wema_velviento_def <- wema_velviento
 #----- FORMATEAR FECHA
 wema_temp <- filtrarNA5min(wema_temp)
 wema_dirviento <- filtrarNA5min(wema_dirviento)
@@ -254,10 +310,10 @@ library(dplyr)
 library(knitr)
 
 extraer_series_wema <- function(dataserieOfena, datasetWema, datasetOfena, colMedicionOfena) {
-    # Obtener los subconjuntos de datos de la estación WEMA
-    dataserieOfena$CoefVariacionOFENA <- NA
-    dataserieOfena$CoefVariacionWEMA <- NA
-    seriesDescartadas <- data.frame(
+  # Obtener los subconjuntos de datos de la estación WEMA
+  dataserieOfena$CoefVariacionOFENA <- NA
+  dataserieOfena$CoefVariacionWEMA <- NA
+  seriesDescartadas <- data.frame(
         FechaInicio = c(),
         HoraInicio = c(),
         FechaFin = c(),
@@ -266,41 +322,41 @@ extraer_series_wema <- function(dataserieOfena, datasetWema, datasetOfena, colMe
         CantDatosWema = c(),
         Diferencia = c()
     )
-    series_encontradas_list <- list()
-    contlista <- 1
-    for (i in 1:nrow(dataserieOfena)) {
-        reg_serie <- dataserieOfena[i, ]
-        # obtener la muestra de ofena segun el rango
-        muestra_ofena <- datasetOfena %>% filter(Fecha >= reg_serie$FechaInicio & Fecha <= reg_serie$FechaFin & Hora >= reg_serie$HoraInicio & Hora <= reg_serie$HoraFin)
-        # obtener la muestra de wema segun el rango
-        wema_var_filtrada <- datasetWema %>% filter(Fecha >= reg_serie$FechaInicio & Fecha <= reg_serie$FechaFin & Hora >= reg_serie$HoraInicio & Hora <= reg_serie$HoraFin)
-        # verificar si la cant de mediciones en wema son iguales o mayor que ofena
-        if (nrow(wema_var_filtrada) < 10) {
-            seriesDescartadas <- rbind(seriesDescartadas, data_frame(FechaInicio = reg_serie$FechaInicio, HoraInicio = reg_serie$HoraInicio, FechaFin = reg_serie$FechaFin, HoraFin = reg_serie$HoraFin, CantDatosOfena = reg_serie$CantDatos, CantDatosWema = nrow(wema_var_filtrada), Diferencia = (nrow(wema_var_filtrada) - nrow(muestra_ofena))))
-            next
-        }
-        # unir wema con ofena
-        wema_ofena <- inner_join(muestra_ofena, wema_var_filtrada, by = c("Fecha", "Hora"))
+  series_encontradas_list <- list()
+  contlista <- 1
+  for (i in 1:nrow(dataserieOfena)) {
+    reg_serie <- dataserieOfena[i,]
+    # obtener la muestra de ofena segun el rango
+    muestra_ofena <- datasetOfena %>% filter(Fecha >= reg_serie$FechaInicio & Fecha <= reg_serie$FechaFin & Hora >= reg_serie$HoraInicio & Hora <= reg_serie$HoraFin)
+    # obtener la muestra de wema segun el rango
+    wema_var_filtrada <- datasetWema %>% filter(Fecha >= reg_serie$FechaInicio & Fecha <= reg_serie$FechaFin & Hora >= reg_serie$HoraInicio & Hora <= reg_serie$HoraFin)
+    # verificar si la cant de mediciones en wema son iguales o mayor que ofena
+    if (nrow(wema_var_filtrada) < 10) {
+      seriesDescartadas <- rbind(seriesDescartadas, tibble(FechaInicio = reg_serie$FechaInicio, HoraInicio = reg_serie$HoraInicio, FechaFin = reg_serie$FechaFin, HoraFin = reg_serie$HoraFin, CantDatosOfena = reg_serie$CantDatos, CantDatosWema = nrow(wema_var_filtrada), Diferencia = (nrow(wema_var_filtrada) - nrow(muestra_ofena))))
+      next
+    }
+    # unir wema con ofena
+    wema_ofena <- inner_join(muestra_ofena, wema_var_filtrada, by = c("Fecha", "Hora"))
 
-        # calculos de errores
-        wema_ofena <- wema_ofena %>% mutate(
+    # calculos de errores
+    wema_ofena <- wema_ofena %>% mutate(
             ErrorAbsoluto = errorAbsoluto(wema_ofena, colMedicionOfena, "medicion"),
             ErrorRelativo = errorRelativo(wema_ofena, colMedicionOfena, "medicion"),
             ErrorPorcentual = errorPorcentual(wema_ofena, colMedicionOfena, "medicion"),
         )
 
-        # agregar medidas de ofena
-        # calcular el coeficiente de variacion
-        coef_variacion_ofena <- (sd(wema_ofena[[colMedicionOfena]]) / mean(muestra_ofena[[colMedicionOfena]]))
-        coef_variacion_wema <- (sd(wema_ofena$medicion) / mean(wema_ofena$medicion))
-        # agrergar el coeficiente de variacion a la tabla dataserieOfena en la fila i
-        dataserieOfena[i, ]$CoefVariacionOFENA <- coef_variacion_ofena
-        dataserieOfena[i, ]$CoefVariacionWEMA <- coef_variacion_wema
+    # agregar medidas de ofena
+    # calcular el coeficiente de variacion
+    coef_variacion_ofena <- (sd(wema_ofena[[colMedicionOfena]]) / mean(muestra_ofena[[colMedicionOfena]]))
+    coef_variacion_wema <- (sd(wema_ofena$medicion) / mean(wema_ofena$medicion))
+    # agrergar el coeficiente de variacion a la tabla dataserieOfena en la fila i
+    dataserieOfena[i,]$CoefVariacionOFENA <- coef_variacion_ofena
+    dataserieOfena[i,]$CoefVariacionWEMA <- coef_variacion_wema
 
-        series_encontradas_list[[contlista]] <- wema_ofena
-        contlista <- contlista + 1
-    }
-    return(list(series_descartadas = seriesDescartadas, series_encontradas_list = series_encontradas_list, dataset_serie_manipulada = dataserieOfena))
+    series_encontradas_list[[contlista]] <- wema_ofena
+    contlista <- contlista + 1
+  }
+  return(list(series_descartadas = seriesDescartadas, series_encontradas_list = series_encontradas_list, dataset_serie_manipulada = dataserieOfena))
 }
 
 
@@ -308,15 +364,15 @@ extraer_series_wema <- function(dataserieOfena, datasetWema, datasetOfena, colMe
 
 ```{r, echo=FALSE}
 promedio_series_err <- function(list_series) {
-    series_stats <- data.frame(PromEAbs = c(), PromERel = c(), PromEPorc = c(), cantMediciones = c())
-    if (length(list_series) == 0) {
-        return(data.frame())
-    }
-    for (i in 1:length(list_series)) {
-        table_series <- list_series[[i]]
-        series_stats <- rbind(series_stats, data.frame(cantMediciones = nrow(table_series), PromEAbs = mean(table_series$ErrorAbsoluto), PromERel = mean(table_series$ErrorRelativo), PromEPorc = mean(table_series$ErrorPorcentual)))
-    }
-    return(series_stats)
+  series_stats <- data.frame(PromEAbs = c(), PromERel = c(), PromEPorc = c(), cantMediciones = c())
+  if (length(list_series) == 0) {
+    return(data.frame())
+  }
+  for (i in 1:length(list_series)) {
+    table_series <- list_series[[i]]
+    series_stats <- rbind(series_stats, data.frame(cantMediciones = nrow(table_series), PromEAbs = mean(table_series$ErrorAbsoluto), PromERel = mean(table_series$ErrorRelativo), PromEPorc = mean(table_series$ErrorPorcentual)))
+  }
+  return(series_stats)
 }
 ```
 
@@ -327,15 +383,19 @@ res_wema_temp_s_cv <- na.omit(res_wema_temp$dataset_serie_manipulada)
 prom_err_series_temperatura <- promedio_series_err(res_wema_temp$series_encontradas_list)
 #------------- PRESION
 res_wema_presion <- extraer_series_wema(data_serie_presion, wema_presion, data_presion_ofena, "RelativePressure.hPa.")
+res_wema_presion_s_cv <- na.omit(res_wema_presion$dataset_serie_manipulada)
 prom_err_series_presion <- promedio_series_err(res_wema_presion$series_encontradas_list)
 #------------- HUMEDAD
 res_wema_humedad <- extraer_series_wema(data_serie_humedad, wema_humedad, data_humedad_ofena, "Humidity...")
+res_wema_humedad_s_cv <- na.omit(res_wema_humedad$dataset_serie_manipulada)
 prom_err_series_humedad <- promedio_series_err(res_wema_humedad$series_encontradas_list)
 #------------- DIRECCION DEL VIENTO
 res_wema_dirviento <- extraer_series_wema(data_serie_dirviento, wema_dirviento, data_dirviento_ofena, "Wind.Direction....")
+res_wema_dirviento_s_cv <- na.omit(res_wema_dirviento$dataset_serie_manipulada)
 prom_err_series_dirviento <- promedio_series_err(res_wema_dirviento$series_encontradas_list)
 #-------------- VELOCDIDAD DEL VIENTO
 res_wema_velviento <- extraer_series_wema(data_serie_velviento, wema_velviento, data_velviento_ofena, "WindSpeed.km.hr.")
+res_wema_velviento_s_cv <- na.omit(res_wema_velviento$dataset_serie_manipulada)
 prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encontradas_list)
 
 ```
@@ -343,6 +403,8 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 # Resultados por variable
 
 ## Resultados para la temperatura
+
+### Limpieza de Datos OFENA
 
 |   | Resultado |
 |-----------------------------------|-------------------------------------|
@@ -352,6 +414,8 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 
 : Resumen de limpieza de datos, para la variable de temperatura datos OFENA
 
+### Limpieza de Datos WEMA
+
 |   | Resultado |
 |------------------------------------|------------------------------------|
 | Cantidad datos WEMA original | `r cant_original_temp_wema` |
@@ -359,6 +423,8 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 | Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(wema_temp)` |
 
 : Resumen limpieza de datos, para la variable de temperatura
+
+### Series de Datos Analizados
 
 |   | Resultado |
 |------------------------------|------------------------------------------|
@@ -370,79 +436,48 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 library(knitr)
 resumen_serie_temperatura <- prom_err_series_temperatura %>% summarise(MedicionesTotales = sum(prom_err_series_temperatura$cantMediciones), MaxErrorAbs = max(prom_err_series_temperatura$PromEAbs), MinErrorAbs = min(prom_err_series_temperatura$PromEAbs))
 kable(resumen_serie_temperatura, caption = "Resumen para las series de mediciones de temperatura")
+```
 
+
+### Comparación de errores para las series de temperatura
+
+```{r, echo=FALSE}
+#--------------TEMPERATURA
+kable(prom_err_series_temperatura, caption = "Promedio de Errores para las series de temperatura")
+```
+
+###  Comparación Coeficiente de variacion entre Temperatura real y medición
+
+```{r , echo=FALSE}
+kable(res_wema_temp_s_cv, caption = "coeficiente de variacion, para las series de temperatura encontrada")
 ```
 
 ```{r, echo=FALSE}
-kable(prom_err_series_temperatura, caption = "Promedio de Errores para las series de temperatura")
-kable(res_wema_temp_s_cv, caption = "coeficiente de variacion, para las series de temperatura encontrada")
-print(ggplot(res_wema_temp_s_cv, aes(x = NoSerie)) +
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_temp_s_cv, aes(x = NoSerie)) +
     geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
     geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
     geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
     geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    geom_label(aes(y = CoefVariacionOFENA, label = round(CoefVariacionOFENA, 2)),
+        fill = "white", color = "red", size = 3, label.size = 0.3, vjust = 0.5, hjust = 1
+    ) +
+    geom_label(aes(y = CoefVariacionWEMA, label = round(CoefVariacionWEMA, 2)),
+        fill = "white", color = "green4", size = 3, label.size = 0.3, vjust = -1
+    ) +
     labs(
         title = "Comparación Coeficiente de variacion entre  temperatura real y medición",
         y = "C.V", x = "No. serie"
     ) +
     theme_minimal() +
-    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
+    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "green4"))
 ```
 
-```{r, echo=FALSE}
-library(dplyr)
-library(lubridate)
-mtbf_calc <- function(tt_funcionamiento, tt_inactividad, no_fallas) {
-    return((tt_funcionamiento - tt_inactividad) / no_fallas)
-}
-mttr_calc <- function(tt_mantenimiento, no_reparaciones) {
-    return(tt_mantenimiento / no_reparaciones)
-}
-
-disponibilidad <- function(t_disponible, t_planificado) {
-    return((t_disponible / t_planificado) * 100)
-}
-disponibilidad_2 <- function(mtbf, mttr) {
-    return(mtbf / (mtbf + mttr))
-}
-tasa_falla <- function(no_fallas, t_operacion) {
-    return(no_fallas / t_operacion)
-}
-fiabilidad <- function(h_dipsonibles, no_fallas) {
-    return(h_dipsonibles / no_fallas)
-}
-encontrar_tiempos_no_disponible <- function(data_prueba) {
-    # obtener fechas con mediciones
-    # convertir datetime a string
-    data_prueba <- data_prueba %>% mutate(FechaHora = as.POSIXct(paste(Fecha, Hora), format = "%Y-%m-%d %H:%M:%S"))
-    data_prueba <- data_prueba %>% mutate(FechaHora = format(FechaHora, "%Y-%m-%d  %H:%M:%S"))
-    data_prueba <- data_prueba %>% mutate(FechaHora = ymd_hms(FechaHora))
-
-    dataset_horas_no_disponibles <- data.frame()
-    # obtener el primer registro
-    reg_anterior <- data_prueba[1, ]
-    for (index in 2:nrow(data_prueba)) {
-        # obtener las horas
-        dt_reg_anterior <- reg_anterior$FechaHora
-        dt_reg_actual <- data_prueba[index, ]$FechaHora
-        # obtener la diferencia en minutos
-        diferencia_minutos <- as.numeric(difftime(dt_reg_actual, dt_reg_anterior, units = "mins"))
-        # convertir a valor numerico
-        if (diferencia_minutos != 1) {
-            # se ha perdido la serie
-            # obtener la diferencia entre la hora actual y el ultimo registro
-            dataset_horas_no_disponibles <- rbind(dataset_horas_no_disponibles, data.frame(FechaInicioInterrupcion = reg_anterior$Fecha, HoraInicioInterrupcion = reg_anterior$Hora, FechaFinInterrupcion = data_prueba[index, ]$Fecha, HoraFinInterrupcion = data_prueba[index, ]$Hora, MinutosNoDisponible = diferencia_minutos, CantDatosPerdidos = diferencia_minutos))
-        }
-        reg_anterior <- data_prueba[index, ]
-    }
-    return(dataset_horas_no_disponibles)
-}
-
-```
-
-### Disponibilidad
+### Disponibilidad de la variable temperatura
 
 ```{r, echo=FALSE}
+#--------------TEMPERATURA
 dta_temperatura_disponibilidad <- encontrar_tiempos_no_disponible(wema_temp_def)
 dta_temperatura_frec_interrupciones <- dta_temperatura_disponibilidad %>%
     group_by(MinutosNoDisponible) %>%
@@ -465,7 +500,228 @@ disponibilidad_temperatura <- disponibilidad_2(mtbf = mtbf_temperatura, mttr = m
 
 # mostrar resultados
 kable(data.frame(MTBF = mtbf_temperatura, MTTR = mttr_temperatura, Disponibilidad = disponibilidad_temperatura), caption = "Resultados de disponibilidad para la medición de temperatura")
+```
 
+
+
+## Resumen series de mediciones presion
+
+```{r, echo=FALSE}
+resumen_serie_presion <- prom_err_series_presion %>% summarise(MedicionesTotales = sum(prom_err_series_presion$cantMediciones), MaxErrorAbs = max(prom_err_series_presion$PromEAbs), MinErrorAbs = min(prom_err_series_presion$PromEAbs))
+kable(resumen_serie_presion, caption = "Resumen para las series de mediciones de presion")
+```
+
+## Resumen series de mediciones humedad
+
+```{r,echo=FALSE}
+resumen_serie_humedad <- prom_err_series_humedad %>% summarise(MedicionesTotales = sum(prom_err_series_humedad$cantMediciones), MaxErrorAbs = max(prom_err_series_humedad$PromEAbs), MinErrorAbs = min(prom_err_series_humedad$PromEAbs))
+kable(resumen_serie_humedad, caption = "Resumen para las series de mediciones de humedad")
+
+```
+
+## Resumen series de mediciones direccion del viento
+
+```{r,echo=FALSE}
+resumen_serie_dirviento <- prom_err_series_dirviento %>% summarise(MedicionesTotales = sum(prom_err_series_dirviento$cantMediciones), MaxErrorAbs = max(prom_err_series_dirviento$PromEAbs), MinErrorAbs = min(prom_err_series_dirviento$PromEAbs))
+kable(resumen_serie_dirviento, caption = "Resumen para las series de mediciones de direccion del viento")
+```
+
+## Resumen series de mediciones velocidad del viento
+
+```{r,echo=FALSE}
+resumen_serie_velviento <- prom_err_series_velviento %>% summarise(MedicionesTotales = sum(prom_err_series_velviento$cantMediciones), MaxErrorAbs = max(prom_err_series_velviento$PromEAbs), MinErrorAbs = min(prom_err_series_velviento$PromEAbs))
+kable(resumen_serie_velviento, caption = "Resumen para las series de mediciones de velocidad del viento")
+```
+
+## Comparación Coeficiente de variacion entre presion real y medición
+
+```{r,echo=FALSE}
+#--------------PRESION
+kable(prom_err_series_presion, caption = "Promedio de Errores para las series de presion")
+kable(res_wema_presion_s_cv, caption = "coeficiente de variacion, para las series de presion encontrada")
+print(ggplot(res_wema_presion_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    labs(
+        title = "Comparación Coeficiente de variacion entre  presion real y medición",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
+```
+
+## Comparación Coeficiente de variacion entre humedad real y medición
+
+```{r,echo=FALSE}
+#--------------HUMEDAD
+kable(prom_err_series_humedad, caption = "Promedio de Errores para las series de humedad")
+kable(res_wema_humedad_s_cv, caption = "coeficiente de variacion, para las series de humedad encontrada")
+print(ggplot(res_wema_humedad_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    labs(
+        title = "Comparación Coeficiente de variacion entre  humedad real y medición",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
+```
+
+## Comparación Coeficiente de variacion entre direccion del viento real y medición
+
+```{r,echo=FALSE}
+#--------------DIRVIENTO
+kable(prom_err_series_dirviento, caption = "Promedio de Errores para las series de direccion del viento")
+kable(res_wema_dirviento_s_cv, caption = "coeficiente de variacion, para las series de direccion del viento encontrada")
+print(ggplot(res_wema_dirviento_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    labs(
+        title = "Comparación Coeficiente de variacion entre direccion del viento real y medición",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
+```
+
+## Comparación Coeficiente de variacion entre velocidad del viento real y medición
+
+```{r,echo=FALSE}
+#--------------VELVIENTO
+kable(prom_err_series_velviento, caption = "Promedio de Errores para las series de velocidad del viento")
+kable(res_wema_velviento_s_cv, caption = "coeficiente de variacion, para las series de velocidad del viento encontrada")
+print(ggplot(res_wema_velviento_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    labs(
+        title = "Comparación Coeficiente de variacion entre velocidad del viento real y medición",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
+```
+
+## Disponibilidad de la variable presion
+
+```{r, echo=FALSE}
+#--------------PRESION
+dta_presion_disponibilidad <- encontrar_tiempos_no_disponible(wema_presion_def)
+dta_presion_frec_interrupciones <- dta_presion_disponibilidad %>%
+    group_by(MinutosNoDisponible) %>%
+    summarise(Frecuencia = n())
+dta_presion_frec_interrupciones <- dta_presion_frec_interrupciones %>% mutate(TotalMinutos = MinutosNoDisponible * Frecuencia)
+kable(dta_presion_frec_interrupciones, caption = "Frecuencia de interrupciones en la medición de presion")
+
+summ_disponibilidad_presion <- dta_presion_frec_interrupciones %>% summarise(cantMinutosInterrupcion = sum(MinutosNoDisponible * Frecuencia), cantHorasInterrupcion = sum(MinutosNoDisponible * Frecuencia) / 60, cantParadas = sum(Frecuencia), TiempoTotalDispMin = nrow(wema_presion_def), TiempoTotalDispHora = nrow(wema_presion_def) / 60)
+
+kable(summ_disponibilidad_presion, caption = "Resumen de interrupciones en la medición de presion")
+#---------calculos de disponibilidad
+# incio: 19/12/2024  00:00:00
+# fin: 02/02/2025  00:00:00
+fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
+mtbf_presion <- mtbf_calc(summ_disponibilidad_presion$TiempoTotalDispHora, summ_disponibilidad_presion$cantHorasInterrupcion, summ_disponibilidad_presion$cantParadas)
+mttr_presion <- mttr_calc(summ_disponibilidad_presion$cantHorasInterrupcion, summ_disponibilidad_presion$cantParadas)
+disponibilidad_presion <- disponibilidad_2(mtbf = mtbf_presion, mttr = mttr_presion)
+
+# mostrar resultados
+kable(data.frame(MTBF = mtbf_presion, MTTR = mttr_presion, Disponibilidad = disponibilidad_presion), caption = "Resultados de disponibilidad para la medición de presion")
+```
+
+## Disponiblidad de la variable Humedad
+
+```{r,echo=FALSE}
+#--------------HUMEDAD
+dta_humedad_disponibilidad <- encontrar_tiempos_no_disponible(wema_humedad_def)
+dta_humedad_frec_interrupciones <- dta_humedad_disponibilidad %>%
+    group_by(MinutosNoDisponible) %>%
+    summarise(Frecuencia = n())
+dta_humedad_frec_interrupciones <- dta_humedad_frec_interrupciones %>% mutate(TotalMinutos = MinutosNoDisponible * Frecuencia)
+kable(dta_humedad_frec_interrupciones, caption = "Frecuencia de interrupciones en la medición de humedad")
+
+summ_disponibilidad_humedad <- dta_humedad_frec_interrupciones %>% summarise(cantMinutosInterrupcion = sum(MinutosNoDisponible * Frecuencia), cantHorasInterrupcion = sum(MinutosNoDisponible * Frecuencia) / 60, cantParadas = sum(Frecuencia), TiempoTotalDispMin = nrow(wema_humedad_def), TiempoTotalDispHora = nrow(wema_humedad_def) / 60)
+
+kable(summ_disponibilidad_humedad, caption = "Resumen de interrupciones en la medición de humedad")
+#---------calculos de disponibilidad
+# incio: 19/12/2024  00:00:00
+# fin: 02/02/2025  00:00:00
+fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
+mtbf_humedad <- mtbf_calc(summ_disponibilidad_humedad$TiempoTotalDispHora, summ_disponibilidad_humedad$cantHorasInterrupcion, summ_disponibilidad_humedad$cantParadas)
+mttr_humedad <- mttr_calc(summ_disponibilidad_humedad$cantHorasInterrupcion, summ_disponibilidad_humedad$cantParadas)
+disponibilidad_humedad <- disponibilidad_2(mtbf = mtbf_humedad, mttr = mttr_humedad)
+
+# mostrar resultados
+kable(data.frame(MTBF = mtbf_humedad, MTTR = mttr_humedad, Disponibilidad = disponibilidad_humedad), caption = "Resultados de disponibilidad para la medición de humedad")
+```
+
+## Disponiblidad de la variable Direccion del viento
+
+```{r,echo=FALSE}
+#--------------DIRVIENTO
+dta_dirviento_disponibilidad <- encontrar_tiempos_no_disponible(wema_dirviento_def)
+dta_dirviento_frec_interrupciones <- dta_dirviento_disponibilidad %>%
+    group_by(MinutosNoDisponible) %>%
+    summarise(Frecuencia = n())
+dta_dirviento_frec_interrupciones <- dta_dirviento_frec_interrupciones %>% mutate(TotalMinutos = MinutosNoDisponible * Frecuencia)
+kable(dta_dirviento_frec_interrupciones, caption = "Frecuencia de interrupciones en la medición de direccion de viento")
+
+summ_disponibilidad_dirviento <- dta_dirviento_frec_interrupciones %>% summarise(cantMinutosInterrupcion = sum(MinutosNoDisponible * Frecuencia), cantHorasInterrupcion = sum(MinutosNoDisponible * Frecuencia) / 60, cantParadas = sum(Frecuencia), TiempoTotalDispMin = nrow(wema_dirviento_def), TiempoTotalDispHora = nrow(wema_dirviento_def) / 60)
+
+kable(summ_disponibilidad_dirviento, caption = "Resumen de interrupciones en la medición de direccion de viento")
+#---------calculos de disponibilidad
+# incio: 19/12/2024  00:00:00
+# fin: 02/02/2025  00:00:00
+fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
+mtbf_dirviento <- mtbf_calc(summ_disponibilidad_dirviento$TiempoTotalDispHora, summ_disponibilidad_dirviento$cantHorasInterrupcion, summ_disponibilidad_dirviento$cantParadas)
+# disponibilidad
+mttr_dirviento <- mttr_calc(summ_disponibilidad_dirviento$cantHorasInterrupcion, summ_disponibilidad_dirviento$cantParadas)
+disponibilidad_dirviento <- disponibilidad_2(mtbf = mtbf_dirviento, mttr = mttr_dirviento)
+
+# mostrar resultados
+kable(data.frame(MTBF = mtbf_dirviento, MTTR = mttr_dirviento, Disponibilidad = disponibilidad_dirviento), caption = "Resultados de disponibilidad para la medición de direccion del viento")
+
+```
+
+## Disponiblidad de la variable Velocidad del viento
+
+```{r, echo=FALSE}
+
+#--------------VELOCIDAD DEL VIENTO
+dta_velviento_disponibilidad <- encontrar_tiempos_no_disponible(wema_velviento_def)
+dta_velviento_frec_interrupciones <- dta_velviento_disponibilidad %>%
+    group_by(MinutosNoDisponible) %>%
+    summarise(Frecuencia = n())
+dta_velviento_frec_interrupciones <- dta_velviento_frec_interrupciones %>% mutate(TotalMinutos = MinutosNoDisponible * Frecuencia)
+kable(dta_velviento_frec_interrupciones, caption = "Frecuencia de interrupciones en la medición de velocidad del viento")
+
+summ_disponibilidad_velviento <- dta_velviento_frec_interrupciones %>% summarise(cantMinutosInterrupcion = sum(MinutosNoDisponible * Frecuencia), cantHorasInterrupcion = sum(MinutosNoDisponible * Frecuencia) / 60, cantParadas = sum(Frecuencia), TiempoTotalDispMin = nrow(wema_velviento_def), TiempoTotalDispHora = nrow(wema_velviento_def) / 60)
+
+kable(summ_disponibilidad_velviento, caption = "Resumen de interrupciones en la medición de velocidad de viento")
+#---------calculos de disponibilidad
+# incio: 19/12/2024  00:00:00
+# fin: 02/02/2025  00:00:00
+fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
+h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
+mtbf_velviento <- mtbf_calc(summ_disponibilidad_velviento$TiempoTotalDispHora, summ_disponibilidad_velviento$cantHorasInterrupcion, summ_disponibilidad_velviento$cantParadas)
+mttr_velviento <- mttr_calc(summ_disponibilidad_velviento$cantHorasInterrupcion, summ_disponibilidad_velviento$cantParadas)
+disponibilidad_velviento <- disponibilidad_2(mtbf = mtbf_velviento, mttr = mttr_velviento)
+
+# mostrar resultados
+kable(data.frame(MTBF = mtbf_velviento, MTTR = mttr_velviento, Disponibilidad = disponibilidad_velviento), caption = "Resultados de disponibilidad para la medición de velocidad del viento")
 ```
 
 $$

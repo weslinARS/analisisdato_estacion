@@ -80,7 +80,7 @@ window.Quarto = {
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       
-            <p class="subtitle lead">Propuesta de plan de accion para la estimación de la precisión y exactitud recolectados por la estación meteorológica OFENA</p>
+            <p class="subtitle lead">Análisis de datos para la determinación de la precisión, exactitud de los datos, así como la disponibilidad de los sensores de medición de la estación WEMA</p>
                       </div>
   </div>
     
@@ -113,6 +113,8 @@ window.Quarto = {
 
 
 
+<section id="fechas-con-mediciones-recolectadas-por-la-estación-ofena" class="level2">
+<h2 class="anchored" data-anchor-id="fechas-con-mediciones-recolectadas-por-la-estación-ofena">Fechas con mediciones recolectadas por la estación OFENA</h2>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -189,14 +191,22 @@ window.Quarto = {
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: `data_frame()` was deprecated in tibble 1.1.0.
-ℹ Please use `tibble()` instead.</code></pre>
+<pre><code>
+Adjuntando el paquete: 'lubridate'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
 </div>
 </div>
+</section>
 <section id="resultados-por-variable" class="level1">
 <h1>Resultados por variable</h1>
 <section id="resultados-para-la-temperatura" class="level2">
 <h2 class="anchored" data-anchor-id="resultados-para-la-temperatura">Resultados para la temperatura</h2>
+<section id="limpieza-de-datos-ofena" class="level3">
+<h3 class="anchored" data-anchor-id="limpieza-de-datos-ofena">Limpieza de Datos OFENA</h3>
 <table class="caption-top table">
 <caption>Resumen de limpieza de datos, para la variable de temperatura datos OFENA</caption>
 <colgroup>
@@ -224,6 +234,9 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
+</section>
+<section id="limpieza-de-datos-wema" class="level3">
+<h3 class="anchored" data-anchor-id="limpieza-de-datos-wema">Limpieza de Datos WEMA</h3>
 <table class="caption-top table">
 <caption>Resumen limpieza de datos, para la variable de temperatura</caption>
 <colgroup>
@@ -251,6 +264,9 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
+</section>
+<section id="series-de-datos-analizados" class="level3">
+<h3 class="anchored" data-anchor-id="series-de-datos-analizados">Series de Datos Analizados</h3>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 41%">
@@ -298,6 +314,9 @@ window.Quarto = {
 </table>
 </div>
 </div>
+</section>
+<section id="comparación-de-errores-para-las-series-de-temperatura" class="level3">
+<h3 class="anchored" data-anchor-id="comparación-de-errores-para-las-series-de-temperatura">Comparación de errores para las series de temperatura</h3>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -482,6 +501,11 @@ window.Quarto = {
 </tbody>
 </table>
 </div>
+</div>
+</section>
+<section id="comparación-coeficiente-de-variacion-entre-temperatura-real-y-medición" class="level3">
+<h3 class="anchored" data-anchor-id="comparación-coeficiente-de-variacion-entre-temperatura-real-y-medición">Comparación Coeficiente de variacion entre Temperatura real y medición</h3>
+<div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>coeficiente de variacion, para las series de temperatura encontrada</caption>
@@ -791,27 +815,19 @@ window.Quarto = {
 </tbody>
 </table>
 </div>
+</div>
+<div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="analisisdato_completo_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="analisisdato_completo_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="cell">
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Adjuntando el paquete: 'lubridate'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    date, intersect, setdiff, union</code></pre>
-</div>
-</div>
-<section id="disponibilidad" class="level3">
-<h3 class="anchored" data-anchor-id="disponibilidad">Disponibilidad</h3>
+</section>
+<section id="disponibilidad-de-la-variable-temperatura" class="level3">
+<h3 class="anchored" data-anchor-id="disponibilidad-de-la-variable-temperatura">Disponibilidad de la variable temperatura</h3>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -922,13 +938,1633 @@ Adjuntando el paquete: 'lubridate'</code></pre>
 </table>
 </div>
 </div>
+</section>
+</section>
+<section id="resumen-series-de-mediciones-presion" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-series-de-mediciones-presion">Resumen series de mediciones presion</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen para las series de mediciones de presion</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MedicionesTotales</th>
+<th style="text-align: right;">MaxErrorAbs</th>
+<th style="text-align: right;">MinErrorAbs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">893</td>
+<td style="text-align: right;">2.772455</td>
+<td style="text-align: right;">0.0950111</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="resumen-series-de-mediciones-humedad" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-series-de-mediciones-humedad">Resumen series de mediciones humedad</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen para las series de mediciones de humedad</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MedicionesTotales</th>
+<th style="text-align: right;">MaxErrorAbs</th>
+<th style="text-align: right;">MinErrorAbs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">703</td>
+<td style="text-align: right;">18.69667</td>
+<td style="text-align: right;">0.948754</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="resumen-series-de-mediciones-direccion-del-viento" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-series-de-mediciones-direccion-del-viento">Resumen series de mediciones direccion del viento</h2>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 2 warnings in `summarise()`.
+The first warning was:
+ℹ In argument: `MaxErrorAbs = max(prom_err_series_dirviento$PromEAbs)`.
+Caused by warning in `max()`:
+! ningun argumento finito para max; retornando -Inf
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.</code></pre>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen para las series de mediciones de direccion del viento</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MedicionesTotales</th>
+<th style="text-align: right;">MaxErrorAbs</th>
+<th style="text-align: right;">MinErrorAbs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-Inf</td>
+<td style="text-align: right;">Inf</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="resumen-series-de-mediciones-velocidad-del-viento" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-series-de-mediciones-velocidad-del-viento">Resumen series de mediciones velocidad del viento</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen para las series de mediciones de velocidad del viento</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MedicionesTotales</th>
+<th style="text-align: right;">MaxErrorAbs</th>
+<th style="text-align: right;">MinErrorAbs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">440</td>
+<td style="text-align: right;">3.092598</td>
+<td style="text-align: right;">0.4371663</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="comparación-coeficiente-de-variacion-entre-presion-real-y-medición" class="level2">
+<h2 class="anchored" data-anchor-id="comparación-coeficiente-de-variacion-entre-presion-real-y-medición">Comparación Coeficiente de variacion entre presion real y medición</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Promedio de Errores para las series de presion</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">cantMediciones</th>
+<th style="text-align: right;">PromEAbs</th>
+<th style="text-align: right;">PromERel</th>
+<th style="text-align: right;">PromEPorc</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0.1189986</td>
+<td style="text-align: right;">0.0001185</td>
+<td style="text-align: right;">0.0118541</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">0.5553462</td>
+<td style="text-align: right;">0.0005540</td>
+<td style="text-align: right;">0.0553976</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">161</td>
+<td style="text-align: right;">0.4209056</td>
+<td style="text-align: right;">0.0004195</td>
+<td style="text-align: right;">0.0419465</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">0.5834864</td>
+<td style="text-align: right;">0.0005832</td>
+<td style="text-align: right;">0.0583155</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">0.0950111</td>
+<td style="text-align: right;">0.0000945</td>
+<td style="text-align: right;">0.0094546</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">85</td>
+<td style="text-align: right;">0.3586424</td>
+<td style="text-align: right;">0.0003574</td>
+<td style="text-align: right;">0.0357439</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">107</td>
+<td style="text-align: right;">2.7724550</td>
+<td style="text-align: right;">0.0027517</td>
+<td style="text-align: right;">0.2751678</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">0.5461706</td>
+<td style="text-align: right;">0.0005445</td>
+<td style="text-align: right;">0.0544463</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">0.5579300</td>
+<td style="text-align: right;">0.0005562</td>
+<td style="text-align: right;">0.0556232</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">156</td>
+<td style="text-align: right;">0.4421284</td>
+<td style="text-align: right;">0.0004400</td>
+<td style="text-align: right;">0.0440031</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0.5497983</td>
+<td style="text-align: right;">0.0005488</td>
+<td style="text-align: right;">0.0548790</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>coeficiente de variacion, para las series de presion encontrada</caption>
+<colgroup>
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 10%">
+<col style="width: 19%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">NoSerie</th>
+<th style="text-align: left;">FechaInicio</th>
+<th style="text-align: left;">HoraInicio</th>
+<th style="text-align: left;">FechaFin</th>
+<th style="text-align: left;">HoraFin</th>
+<th style="text-align: right;">CantDatos</th>
+<th style="text-align: right;">CoefVariacionOFENA</th>
+<th style="text-align: right;">CoefVariacionWEMA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">13:40:00</td>
+<td style="text-align: right;">162</td>
+<td style="text-align: right;">0.0009553</td>
+<td style="text-align: right;">0.0010060</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">14:10:00</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">19:10:00</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">0.0009200</td>
+<td style="text-align: right;">0.0007839</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">13:50:00</td>
+<td style="text-align: right;">165</td>
+<td style="text-align: right;">0.0011649</td>
+<td style="text-align: right;">0.0011927</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">14:00:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">19:35:00</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">0.0003314</td>
+<td style="text-align: right;">0.0002900</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">13:50:00</td>
+<td style="text-align: right;">166</td>
+<td style="text-align: right;">0.0011926</td>
+<td style="text-align: right;">0.0012632</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">14:00:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">21:05:00</td>
+<td style="text-align: right;">85</td>
+<td style="text-align: right;">0.0010272</td>
+<td style="text-align: right;">0.0012264</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">14:05:00</td>
+<td style="text-align: right;">167</td>
+<td style="text-align: right;">0.0007464</td>
+<td style="text-align: right;">0.0259481</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">22</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">14:40:00</td>
+<td style="text-align: right;">173</td>
+<td style="text-align: right;">0.0006243</td>
+<td style="text-align: right;">0.0005804</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">23</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">14:50:00</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">19:25:00</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">0.0009173</td>
+<td style="text-align: right;">0.0009502</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">24</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">13:30:00</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">0.0009090</td>
+<td style="text-align: right;">0.0009286</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">13:40:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">20:05:00</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">0.0003780</td>
+<td style="text-align: right;">0.0003989</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisisdato_completo_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="comparación-coeficiente-de-variacion-entre-humedad-real-y-medición" class="level2">
+<h2 class="anchored" data-anchor-id="comparación-coeficiente-de-variacion-entre-humedad-real-y-medición">Comparación Coeficiente de variacion entre humedad real y medición</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Promedio de Errores para las series de humedad</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">cantMediciones</th>
+<th style="text-align: right;">PromEAbs</th>
+<th style="text-align: right;">PromERel</th>
+<th style="text-align: right;">PromEPorc</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">4.654585</td>
+<td style="text-align: right;">0.0502499</td>
+<td style="text-align: right;">5.024993</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">2.313188</td>
+<td style="text-align: right;">0.0382120</td>
+<td style="text-align: right;">3.821197</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">3.011560</td>
+<td style="text-align: right;">0.0558723</td>
+<td style="text-align: right;">5.587231</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">3.413880</td>
+<td style="text-align: right;">0.0730571</td>
+<td style="text-align: right;">7.305712</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">2.336917</td>
+<td style="text-align: right;">0.0450146</td>
+<td style="text-align: right;">4.501459</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">4.440208</td>
+<td style="text-align: right;">0.0608420</td>
+<td style="text-align: right;">6.084201</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">1.618864</td>
+<td style="text-align: right;">0.0281040</td>
+<td style="text-align: right;">2.810402</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">2.859723</td>
+<td style="text-align: right;">0.0536927</td>
+<td style="text-align: right;">5.369272</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">3.304846</td>
+<td style="text-align: right;">0.0697034</td>
+<td style="text-align: right;">6.970344</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">3.077392</td>
+<td style="text-align: right;">0.0748033</td>
+<td style="text-align: right;">7.480333</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">2.171754</td>
+<td style="text-align: right;">0.0383992</td>
+<td style="text-align: right;">3.839918</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">3.168806</td>
+<td style="text-align: right;">0.0632524</td>
+<td style="text-align: right;">6.325235</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">1.149673</td>
+<td style="text-align: right;">0.0194320</td>
+<td style="text-align: right;">1.943196</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">18.696667</td>
+<td style="text-align: right;">0.2111144</td>
+<td style="text-align: right;">21.111443</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">6.445407</td>
+<td style="text-align: right;">0.0834053</td>
+<td style="text-align: right;">8.340526</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">2.378833</td>
+<td style="text-align: right;">0.0343410</td>
+<td style="text-align: right;">3.434099</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.948754</td>
+<td style="text-align: right;">0.0146500</td>
+<td style="text-align: right;">1.464999</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">1.949893</td>
+<td style="text-align: right;">0.0336341</td>
+<td style="text-align: right;">3.363410</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">3.373449</td>
+<td style="text-align: right;">0.0712558</td>
+<td style="text-align: right;">7.125577</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">2.554101</td>
+<td style="text-align: right;">0.0404731</td>
+<td style="text-align: right;">4.047306</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">5.536956</td>
+<td style="text-align: right;">0.0784083</td>
+<td style="text-align: right;">7.840826</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">3.153008</td>
+<td style="text-align: right;">0.0457278</td>
+<td style="text-align: right;">4.572781</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">1.368179</td>
+<td style="text-align: right;">0.0209129</td>
+<td style="text-align: right;">2.091288</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">3.779254</td>
+<td style="text-align: right;">0.0528199</td>
+<td style="text-align: right;">5.281992</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">1.401359</td>
+<td style="text-align: right;">0.0207126</td>
+<td style="text-align: right;">2.071258</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">1.533794</td>
+<td style="text-align: right;">0.0256582</td>
+<td style="text-align: right;">2.565824</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">2.574138</td>
+<td style="text-align: right;">0.0471227</td>
+<td style="text-align: right;">4.712272</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">3.540663</td>
+<td style="text-align: right;">0.0787270</td>
+<td style="text-align: right;">7.872703</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>coeficiente de variacion, para las series de humedad encontrada</caption>
+<colgroup>
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 10%">
+<col style="width: 19%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">NoSerie</th>
+<th style="text-align: left;">FechaInicio</th>
+<th style="text-align: left;">HoraInicio</th>
+<th style="text-align: left;">FechaFin</th>
+<th style="text-align: left;">HoraFin</th>
+<th style="text-align: right;">CantDatos</th>
+<th style="text-align: right;">CoefVariacionOFENA</th>
+<th style="text-align: right;">CoefVariacionWEMA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">00:45:00</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">06:55:00</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">0.0261859</td>
+<td style="text-align: right;">0.0271867</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">08:40:00</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">09:30:00</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.0235999</td>
+<td style="text-align: right;">0.0338229</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">09:40:00</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">11:30:00</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.0294099</td>
+<td style="text-align: right;">0.0249672</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">17</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">11:35:00</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">15:55:00</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">0.0459494</td>
+<td style="text-align: right;">0.0531190</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">18</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">16:05:00</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">17:55:00</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">0.0442122</td>
+<td style="text-align: right;">0.0633838</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">05:20:00</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">0.0187901</td>
+<td style="text-align: right;">0.0226739</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">08:45:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">10:00:00</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0.0341085</td>
+<td style="text-align: right;">0.0467736</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">21</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">10:10:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">11:25:00</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0.0346274</td>
+<td style="text-align: right;">0.0424229</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">22</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">11:35:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">13:55:00</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">0.0591076</td>
+<td style="text-align: right;">0.0584179</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">23</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">14:05:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">16:15:00</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">0.0425317</td>
+<td style="text-align: right;">0.0430835</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">51</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">10:40:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">12:15:00</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.0446200</td>
+<td style="text-align: right;">0.0602228</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">52</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">12:25:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">16:20:00</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">0.0397979</td>
+<td style="text-align: right;">0.0495456</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">53</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">16:30:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">17:55:00</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.0135866</td>
+<td style="text-align: right;">0.0127970</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">54</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">19:50:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">22:20:00</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">0.0193944</td>
+<td style="text-align: right;">0.0282866</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">55</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">03:40:00</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">0.0229436</td>
+<td style="text-align: right;">0.0319381</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">56</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">05:30:00</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">06:20:00</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.0333975</td>
+<td style="text-align: right;">0.0438981</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">57</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">06:30:00</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">08:05:00</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.0272796</td>
+<td style="text-align: right;">0.0322383</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">58</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">08:15:00</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">10:30:00</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.0103406</td>
+<td style="text-align: right;">0.0364666</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">75</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">10:00:00</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">16:50:00</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: right;">0.0438871</td>
+<td style="text-align: right;">0.0443443</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">76</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">20:25:00</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">22:15:00</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">0.0224654</td>
+<td style="text-align: right;">0.0346034</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">77</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">22:25:00</td>
+<td style="text-align: left;">2025-01-25</td>
+<td style="text-align: left;">23:35:00</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0.0314867</td>
+<td style="text-align: right;">0.0543467</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">78</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">00:40:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">01:55:00</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0.0149681</td>
+<td style="text-align: right;">0.0161875</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">79</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">02:05:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">04:35:00</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">0.0303585</td>
+<td style="text-align: right;">0.0378368</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">80</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">04:45:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">06:40:00</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">0.0245748</td>
+<td style="text-align: right;">0.0366474</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">81</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">07:20:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">08:10:00</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.0202601</td>
+<td style="text-align: right;">0.0292942</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">82</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">08:20:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">09:40:00</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0.0229033</td>
+<td style="text-align: right;">0.0376587</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">83</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">09:50:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">12:00:00</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">0.0285548</td>
+<td style="text-align: right;">0.0313120</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">84</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">12:40:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">17:15:00</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">0.0395588</td>
+<td style="text-align: right;">0.0487564</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisisdato_completo_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="comparación-coeficiente-de-variacion-entre-direccion-del-viento-real-y-medición" class="level2">
+<h2 class="anchored" data-anchor-id="comparación-coeficiente-de-variacion-entre-direccion-del-viento-real-y-medición">Comparación Coeficiente de variacion entre direccion del viento real y medición</h2>
+<div class="cell">
+<div class="cell-output-display">
+<p>Table: Promedio de Errores para las series de direccion del viento</p>
+</div>
+<div class="cell-output-display">
+<table class="caption-top">
+<caption>coeficiente de variacion, para las series de direccion del viento encontrada</caption>
+<colgroup>
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 20%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">NoSerie</th>
+<th style="text-align: left;">FechaInicio</th>
+<th style="text-align: left;">HoraInicio</th>
+<th style="text-align: left;">FechaFin</th>
+<th style="text-align: left;">HoraFin</th>
+<th style="text-align: right;">CantDatos</th>
+<th style="text-align: left;">CoefVariacionOFENA</th>
+<th style="text-align: left;">CoefVariacionWEMA</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No shared levels found between `names(values)` of the manual scale and the
+data's colour values.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisisdato_completo_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="comparación-coeficiente-de-variacion-entre-velocidad-del-viento-real-y-medición" class="level2">
+<h2 class="anchored" data-anchor-id="comparación-coeficiente-de-variacion-entre-velocidad-del-viento-real-y-medición">Comparación Coeficiente de variacion entre velocidad del viento real y medición</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Promedio de Errores para las series de velocidad del viento</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">cantMediciones</th>
+<th style="text-align: right;">PromEAbs</th>
+<th style="text-align: right;">PromERel</th>
+<th style="text-align: right;">PromEPorc</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">0.4371663</td>
+<td style="text-align: right;">0.3240387</td>
+<td style="text-align: right;">32.40387</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">2.2506484</td>
+<td style="text-align: right;">0.3038913</td>
+<td style="text-align: right;">30.38913</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.5284096</td>
+<td style="text-align: right;">0.3554239</td>
+<td style="text-align: right;">35.54239</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.9881312</td>
+<td style="text-align: right;">0.4232989</td>
+<td style="text-align: right;">42.32989</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">93</td>
+<td style="text-align: right;">0.9517134</td>
+<td style="text-align: right;">0.6828948</td>
+<td style="text-align: right;">68.28948</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1.9511852</td>
+<td style="text-align: right;">0.5203438</td>
+<td style="text-align: right;">52.03438</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">1.6327680</td>
+<td style="text-align: right;">0.3308056</td>
+<td style="text-align: right;">33.08056</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">2.2475556</td>
+<td style="text-align: right;">0.4384804</td>
+<td style="text-align: right;">43.84804</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">3.0925982</td>
+<td style="text-align: right;">0.3804718</td>
+<td style="text-align: right;">38.04718</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">0.9898678</td>
+<td style="text-align: right;">0.5729567</td>
+<td style="text-align: right;">57.29567</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">1.4880840</td>
+<td style="text-align: right;">0.2783180</td>
+<td style="text-align: right;">27.83180</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1.0144517</td>
+<td style="text-align: right;">0.3157210</td>
+<td style="text-align: right;">31.57210</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.9586796</td>
+<td style="text-align: right;">0.5868096</td>
+<td style="text-align: right;">58.68096</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">0.9541407</td>
+<td style="text-align: right;">0.4141488</td>
+<td style="text-align: right;">41.41488</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>coeficiente de variacion, para las series de velocidad del viento encontrada</caption>
+<colgroup>
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 10%">
+<col style="width: 19%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">NoSerie</th>
+<th style="text-align: left;">FechaInicio</th>
+<th style="text-align: left;">HoraInicio</th>
+<th style="text-align: left;">FechaFin</th>
+<th style="text-align: left;">HoraFin</th>
+<th style="text-align: right;">CantDatos</th>
+<th style="text-align: right;">CoefVariacionOFENA</th>
+<th style="text-align: right;">CoefVariacionWEMA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">00:45:00</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">08:10:00</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">1.6240611</td>
+<td style="text-align: right;">2.9128763</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">09:00:00</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">11:00:00</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">0.4094870</td>
+<td style="text-align: right;">0.4132327</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">12:30:00</td>
+<td style="text-align: left;">2024-12-19</td>
+<td style="text-align: left;">14:30:00</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">0.4570923</td>
+<td style="text-align: right;">0.3923518</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">15:50:00</td>
+<td style="text-align: left;">2025-01-08</td>
+<td style="text-align: left;">16:40:00</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.4093520</td>
+<td style="text-align: right;">0.6023386</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">07:50:00</td>
+<td style="text-align: right;">94</td>
+<td style="text-align: right;">0.8930553</td>
+<td style="text-align: right;">1.1318096</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">13</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">08:15:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">09:20:00</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0.4587060</td>
+<td style="text-align: right;">0.4377678</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">12:00:00</td>
+<td style="text-align: left;">2025-01-09</td>
+<td style="text-align: left;">13:30:00</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.3815123</td>
+<td style="text-align: right;">0.4878524</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">29</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">09:10:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">13:30:00</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">0.3491590</td>
+<td style="text-align: right;">0.4173820</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">15:35:00</td>
+<td style="text-align: left;">2025-01-13</td>
+<td style="text-align: left;">16:45:00</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.2661391</td>
+<td style="text-align: right;">0.4188953</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">31</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">00:00:00</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">04:50:00</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">1.0154679</td>
+<td style="text-align: right;">0.9587846</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">32</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">07:30:00</td>
+<td style="text-align: left;">2025-01-14</td>
+<td style="text-align: left;">10:00:00</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">0.3622432</td>
+<td style="text-align: right;">0.3941966</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">43</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">00:50:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">01:55:00</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0.4901948</td>
+<td style="text-align: right;">0.4868051</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">44</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">02:20:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">03:50:00</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.7068560</td>
+<td style="text-align: right;">0.7638795</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">45</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">04:25:00</td>
+<td style="text-align: left;">2025-01-26</td>
+<td style="text-align: left;">09:20:00</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">0.6106053</td>
+<td style="text-align: right;">0.5345734</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analisisdato_completo_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="disponibilidad-de-la-variable-presion" class="level2">
+<h2 class="anchored" data-anchor-id="disponibilidad-de-la-variable-presion">Disponibilidad de la variable presion</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Frecuencia de interrupciones en la medición de presion</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MinutosNoDisponible</th>
+<th style="text-align: right;">Frecuencia</th>
+<th style="text-align: right;">TotalMinutos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1616</td>
+<td style="text-align: right;">8080</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">310</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">300</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1855</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1855</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5410</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5410</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8265</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8265</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16065</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">16065</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25760</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">25760</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen de interrupciones en la medición de presion</caption>
+<colgroup>
+<col style="width: 24%">
+<col style="width: 22%">
+<col style="width: 12%">
+<col style="width: 19%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">cantMinutosInterrupcion</th>
+<th style="text-align: right;">cantHorasInterrupcion</th>
+<th style="text-align: right;">cantParadas</th>
+<th style="text-align: right;">TiempoTotalDispMin</th>
+<th style="text-align: right;">TiempoTotalDispHora</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">66075</td>
+<td style="text-align: right;">1101.25</td>
+<td style="text-align: right;">1654</td>
+<td style="text-align: right;">1655</td>
+<td style="text-align: right;">27.58333</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resultados de disponibilidad para la medición de presion</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MTBF</th>
+<th style="text-align: right;">MTTR</th>
+<th style="text-align: right;">Disponibilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-0.6491334</td>
+<td style="text-align: right;">0.6658102</td>
+<td style="text-align: right;">-38.92447</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="disponiblidad-de-la-variable-humedad" class="level2">
+<h2 class="anchored" data-anchor-id="disponiblidad-de-la-variable-humedad">Disponiblidad de la variable Humedad</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Frecuencia de interrupciones en la medición de humedad</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MinutosNoDisponible</th>
+<th style="text-align: right;">Frecuencia</th>
+<th style="text-align: right;">TotalMinutos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">340</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">293</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">293</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1850</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1850</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5406</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5406</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8260</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8260</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16062</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">16062</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25757</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">25757</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen de interrupciones en la medición de humedad</caption>
+<colgroup>
+<col style="width: 24%">
+<col style="width: 22%">
+<col style="width: 12%">
+<col style="width: 19%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">cantMinutosInterrupcion</th>
+<th style="text-align: right;">cantHorasInterrupcion</th>
+<th style="text-align: right;">cantParadas</th>
+<th style="text-align: right;">TiempoTotalDispMin</th>
+<th style="text-align: right;">TiempoTotalDispHora</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">57997</td>
+<td style="text-align: right;">966.6167</td>
+<td style="text-align: right;">178</td>
+<td style="text-align: right;">8257</td>
+<td style="text-align: right;">137.6167</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resultados de disponibilidad para la medición de humedad</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MTBF</th>
+<th style="text-align: right;">MTTR</th>
+<th style="text-align: right;">Disponibilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-4.657303</td>
+<td style="text-align: right;">5.430431</td>
+<td style="text-align: right;">-6.02398</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="disponiblidad-de-la-variable-direccion-del-viento" class="level2">
+<h2 class="anchored" data-anchor-id="disponiblidad-de-la-variable-direccion-del-viento">Disponiblidad de la variable Direccion del viento</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Frecuencia de interrupciones en la medición de direccion de viento</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MinutosNoDisponible</th>
+<th style="text-align: right;">Frecuencia</th>
+<th style="text-align: right;">TotalMinutos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">340</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">293</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">293</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1850</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1850</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5406</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5406</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8260</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8260</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16062</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">16062</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25757</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">25757</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen de interrupciones en la medición de direccion de viento</caption>
+<colgroup>
+<col style="width: 24%">
+<col style="width: 22%">
+<col style="width: 12%">
+<col style="width: 19%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">cantMinutosInterrupcion</th>
+<th style="text-align: right;">cantHorasInterrupcion</th>
+<th style="text-align: right;">cantParadas</th>
+<th style="text-align: right;">TiempoTotalDispMin</th>
+<th style="text-align: right;">TiempoTotalDispHora</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">57997</td>
+<td style="text-align: right;">966.6167</td>
+<td style="text-align: right;">178</td>
+<td style="text-align: right;">8257</td>
+<td style="text-align: right;">137.6167</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resultados de disponibilidad para la medición de direccion del viento</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MTBF</th>
+<th style="text-align: right;">MTTR</th>
+<th style="text-align: right;">Disponibilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-4.657303</td>
+<td style="text-align: right;">5.430431</td>
+<td style="text-align: right;">-6.02398</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="disponiblidad-de-la-variable-velocidad-del-viento" class="level2">
+<h2 class="anchored" data-anchor-id="disponiblidad-de-la-variable-velocidad-del-viento">Disponiblidad de la variable Velocidad del viento</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Frecuencia de interrupciones en la medición de velocidad del viento</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MinutosNoDisponible</th>
+<th style="text-align: right;">Frecuencia</th>
+<th style="text-align: right;">TotalMinutos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">340</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">293</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">293</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1850</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1850</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5406</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5406</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8260</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8260</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16062</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">16062</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25757</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">25757</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resumen de interrupciones en la medición de velocidad de viento</caption>
+<colgroup>
+<col style="width: 24%">
+<col style="width: 22%">
+<col style="width: 12%">
+<col style="width: 19%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">cantMinutosInterrupcion</th>
+<th style="text-align: right;">cantHorasInterrupcion</th>
+<th style="text-align: right;">cantParadas</th>
+<th style="text-align: right;">TiempoTotalDispMin</th>
+<th style="text-align: right;">TiempoTotalDispHora</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">57997</td>
+<td style="text-align: right;">966.6167</td>
+<td style="text-align: right;">178</td>
+<td style="text-align: right;">8257</td>
+<td style="text-align: right;">137.6167</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Resultados de disponibilidad para la medición de velocidad del viento</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">MTBF</th>
+<th style="text-align: right;">MTTR</th>
+<th style="text-align: right;">Disponibilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-4.657303</td>
+<td style="text-align: right;">5.430431</td>
+<td style="text-align: right;">-6.02398</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p><span class="math display">\[
 MTBF= \frac{\text{Tiempo total disponible} - \text{Tiempo de Inactividad}}{\text{Número de paradas}}
 \]</span></p>
 <p><span class="math display">\[
 \text{Disponibilidad \(\%\)} = \frac{\text{Horas Disponibles}}{\text{Horas Planificadas}} *100\%
 \]</span></p>
-</section>
 </section>
 </section>
 

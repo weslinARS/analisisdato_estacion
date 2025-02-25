@@ -10,6 +10,7 @@ output:
   word_document: default
   html_document: default
 ---
+
 ```{r, include=FALSE}
 library(dplyr)
 library(ggplot2)
@@ -39,7 +40,6 @@ cant_ofena_filtro5min <- nrow(data_ofena)
 
 
 ```
-
 
 ```{r}
 # separar variables ofena
@@ -125,7 +125,6 @@ series_variable <- function(data_set, precision, nombreColumnaMedicion, dataset_
     return(dta_serie)
 }
 ```
-
 
 ```{r}
 #----------- SERIES POR VARIABLE
