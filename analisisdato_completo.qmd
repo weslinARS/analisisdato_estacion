@@ -29,6 +29,9 @@ wema_humedad <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_est
 wema_dirviento <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
 wema_presion <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
 wema_velviento <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
+
+
+
 ```
 
 ```{r, echo=FALSE}
