@@ -15,13 +15,20 @@ output:
 library(dplyr)
 library(ggplot2)
 library(knitr)
-data_ofena <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/data_ofena.csv")
-wema_temp <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
-wema_humedad <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
-wema_dirviento <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
-wema_presion <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
-wema_velviento <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
+#data_ofena <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/data_ofena.csv")
+#wema_temp <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
+#wema_humedad <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
+#wema_dirviento <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
+#wema_presion <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
+#wema_velviento <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
 
+
+data_ofena <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/data_ofena.csv")
+wema_temp <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
+wema_humedad <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
+wema_dirviento <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
+wema_presion <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
+wema_velviento <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
 ```
 
 ```{r, echo=FALSE}
@@ -209,7 +216,6 @@ filtrarNA5min <- function(dataset) {
 
 ```
 
-
 ```{r, echo=FALSE}
 library(dplyr)
 library(lubridate)
@@ -260,7 +266,6 @@ encontrar_tiempos_no_disponible <- function(data_prueba) {
 }
 
 ```
-
 
 ```{r, include=FALSE}
 #-------- FILTRAR DATOS DE CADA VARIABLE WEMA
@@ -407,7 +412,7 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 ### Limpieza de Datos OFENA
 
 |   | Resultado |
-|-----------------------------------|-------------------------------------|
+|----|----|
 | Cantidad datos OFENA original | `r cant_original_temperatura_ofena` |
 | Cantidad de datos Nulos OFENA | `r cant_na_temperatura_ofena` |
 | Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(data_temperatura_ofena)` |
@@ -417,7 +422,7 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 ### Limpieza de Datos WEMA
 
 |   | Resultado |
-|------------------------------------|------------------------------------|
+|----|----|
 | Cantidad datos WEMA original | `r cant_original_temp_wema` |
 | Cantidad de datos Nulos WEMA | `r cant_na_temp_wema` |
 | Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(wema_temp)` |
@@ -427,7 +432,7 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 ### Series de Datos Analizados
 
 |   | Resultado |
-|------------------------------|------------------------------------------|
+|----|----|
 | Cantidad de series a analizar | `r  nrow(res_wema_temp_s_cv)` series |
 | Cantidad de series descartadas | `r nrow(res_wema_temp$series_descartadas)` series |
 | Cantidad de series encontradas | `r nrow(dta_serie_temperatura)`series |
@@ -438,7 +443,6 @@ resumen_serie_temperatura <- prom_err_series_temperatura %>% summarise(Medicione
 kable(resumen_serie_temperatura, caption = "Resumen para las series de mediciones de temperatura")
 ```
 
-
 ### Comparación de errores para las series de temperatura
 
 ```{r, echo=FALSE}
@@ -446,7 +450,7 @@ kable(resumen_serie_temperatura, caption = "Resumen para las series de medicione
 kable(prom_err_series_temperatura, caption = "Promedio de Errores para las series de temperatura")
 ```
 
-###  Comparación Coeficiente de variacion entre Temperatura real y medición
+### Comparación Coeficiente de variacion entre Temperatura real y medición
 
 ```{r , echo=FALSE}
 kable(res_wema_temp_s_cv, caption = "coeficiente de variacion, para las series de temperatura encontrada")
@@ -501,8 +505,6 @@ disponibilidad_temperatura <- disponibilidad_2(mtbf = mtbf_temperatura, mttr = m
 # mostrar resultados
 kable(data.frame(MTBF = mtbf_temperatura, MTTR = mttr_temperatura, Disponibilidad = disponibilidad_temperatura), caption = "Resultados de disponibilidad para la medición de temperatura")
 ```
-
-
 
 ## Resumen series de mediciones presion
 
