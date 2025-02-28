@@ -23,13 +23,14 @@ library(knitr)
 #wema_velviento <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
 
 
-data_ofena <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/data_ofena.csv")
-wema_temp <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
-wema_humedad <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
-wema_dirviento <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
-wema_presion <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
-wema_velviento <- read.csv("/home/weslin/Documentos/proyecto_ulsa/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
-
+data_ofena <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/data_ofena.csv")
+wema_temp <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
+wema_humedad <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
+wema_dirviento <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/MedicionesDirviento.csv")
+wema_presion <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/MedicionesPresion.csv")
+wema_velviento <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
+wema_luzvisible <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/mediciones_luz_visible.csv")
+wema_luzuv <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/mediciones_uv.csv")
 
 
 ```
@@ -301,7 +302,22 @@ wema_velviento <- wema_velviento %>% select(Hora, Fecha, medicion)
 cant_original_velviento_wema <- nrow(wema_velviento)
 cant_na_velviento_wema <- sum(is.na(wema_velviento$medicion))
 wema_velviento <- na.omit(wema_velviento)
-wema_velviento_def <- wema_velviento
+wema_velviento_def <- wema_velviento 
+
+#-------luz visible
+wema_luzvisible <- wema_luzvisible %>% select(Hora, Fecha, medicion)
+cant_original_luzvisible_wema <- nrow(wema_luzvisible)
+cant_na_luzvisible_wema <- sum(is.na(wema_luzvisible$medicion))
+wema_luzvisible <- na.omit(wema_luzvisible)
+wema_luzvisible_def <- wema_luzvisible
+
+#-------luz uv
+wema_luzuv <- wema_luzuv %>% select(Hora, Fecha, medicion)
+cant_original_luzuv_wema <- nrow(wema_luzuv)
+cant_na_luzuv_wema <- sum(is.na(wema_luzuv$medicion))
+wema_luzuv <- na.omit(wema_luzuv)
+wema_luzuv_def <- wema_luzuv
+
 #----- FORMATEAR FECHA
 wema_temp <- filtrarNA5min(wema_temp)
 wema_dirviento <- filtrarNA5min(wema_dirviento)
