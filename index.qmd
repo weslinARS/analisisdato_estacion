@@ -4,17 +4,38 @@ subtitle:  "Análisis de datos para la determinación de la precisión, exactitu
 author: "Weslin R. Silva"
 date: "2025-02-04"
 pdf-engine: xelatex
-mainfont: Times New Roman
+
+toc-title: "Índice de Contenido"
+toc: true
 output:
   pdf_document: default
   word_document: default
   html_document: default
+format: 
+  html: 
+    mainfont: Times New Roman
+  
+    toc: true
+    toc-title: "Índice de Contenido"
+  pdf: 
+    toc: true
+    toc-title: "Índice de Contenido"
+    documentclass: article
+    latex_options: ["landscape"]
+    margin-left: "2.54cm"
+    margin-right: "2.54cm"
+    tbl-colwidths: auto
+  docx: 
+    toc: true
+    toc-title: "Índice de Contenido"
 ---
 
 ```{r, include=FALSE}
 library(dplyr)
+library(stats)
 library(ggplot2)
 library(knitr)
+library(lubridate)
 #data_ofena <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/data_ofena.csv")
 #wema_temp <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesTemperatura.csv")
 #wema_humedad <- read.csv("C:/Users/wesli/Downloads/analisisdato_estacion/ultimosdatos/MedicionesHumedad.csv")
@@ -31,7 +52,6 @@ wema_presion <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estac
 wema_velviento <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/MedicionVelViento.csv")
 wema_luzvisible <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/mediciones_luz_visible.csv")
 wema_luzuv <- read.csv("/home/wars/Documents/proyectos/ulsa/analisisdato_estacion/ultimosdatos/mediciones_uv.csv")
-
 
 ```
 
@@ -86,9 +106,11 @@ cant_na_dirviento_ofena <- sum(is.na(data_dirviento_ofena))
 data_dirviento_ofena <- na.omit(data_dirviento_ofena)
 ```
 
-## Fechas con mediciones recolectadas por la estación OFENA
+# Fechas con mediciones recolectadas por la estación OFENA
 
-```{r, echo=FALSE}
+```{r echo=FALSE}
+#| message: false
+#| warning: false
 library(tibble)
 #------------ FECHAS RECOLECTADAS OFENA
 # fechas de mediciones recolectadas por la estacion OFENA
@@ -100,7 +122,7 @@ kable(data_ofena_fecha, caption = "Fechas con mediciones recolectadas")
 
 ```
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 #---------------------FUNCION PARA DETERMINAR LAS SERIES POR VARIABLE
 
 series_variable <- function(data_set, precision, nombreColumnaMedicion, dataset_fechas) {
@@ -220,9 +242,8 @@ filtrarNA5min <- function(dataset) {
 
 ```
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 library(dplyr)
-library(lubridate)
 mtbf_calc <- function(tt_funcionamiento, tt_inactividad, no_fallas) {
   return((tt_funcionamiento - tt_inactividad) / no_fallas)
 }
@@ -324,7 +345,7 @@ wema_dirviento <- filtrarNA5min(wema_dirviento)
 wema_humedad <- filtrarNA5min(wema_humedad)
 wema_velviento <- filtrarNA5min(wema_velviento)
 wema_presion <- filtrarNA5min(wema_presion)
-wema_presion_def <- wema_presion
+
 
 
 ```
@@ -376,12 +397,13 @@ extraer_series_wema <- function(dataserieOfena, datasetWema, datasetOfena, colMe
     # agrergar el coeficiente de variacion a la tabla dataserieOfena en la fila i
     dataserieOfena[i,]$CoefVariacionOFENA <- coef_variacion_ofena
     dataserieOfena[i,]$CoefVariacionWEMA <- coef_variacion_wema
-
+    dataserieOfena$'dif C.V' <- abs(dataserieOfena$CoefVariacionOFENA - dataserieOfena$CoefVariacionWEMA)
     series_encontradas_list[[contlista]] <- wema_ofena
     contlista <- contlista + 1
   }
   return(list(series_descartadas = seriesDescartadas, series_encontradas_list = series_encontradas_list, dataset_serie_manipulada = dataserieOfena))
 }
+
 
 
 ```
@@ -417,6 +439,7 @@ prom_err_series_humedad <- promedio_series_err(res_wema_humedad$series_encontrad
 res_wema_dirviento <- extraer_series_wema(data_serie_dirviento, wema_dirviento, data_dirviento_ofena, "Wind.Direction....")
 res_wema_dirviento_s_cv <- na.omit(res_wema_dirviento$dataset_serie_manipulada)
 prom_err_series_dirviento <- promedio_series_err(res_wema_dirviento$series_encontradas_list)
+
 #-------------- VELOCDIDAD DEL VIENTO
 res_wema_velviento <- extraer_series_wema(data_serie_velviento, wema_velviento, data_velviento_ofena, "WindSpeed.km.hr.")
 res_wema_velviento_s_cv <- na.omit(res_wema_velviento$dataset_serie_manipulada)
@@ -431,7 +454,7 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 ### Limpieza de Datos OFENA
 
 |   | Resultado |
-|----|----|
+|------------------------------------|------------------------------------|
 | Cantidad datos OFENA original | `r cant_original_temperatura_ofena` |
 | Cantidad de datos Nulos OFENA | `r cant_na_temperatura_ofena` |
 | Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(data_temperatura_ofena)` |
@@ -441,7 +464,7 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 ### Limpieza de Datos WEMA
 
 |   | Resultado |
-|----|----|
+|------------------------------------|------------------------------------|
 | Cantidad datos WEMA original | `r cant_original_temp_wema` |
 | Cantidad de datos Nulos WEMA | `r cant_na_temp_wema` |
 | Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(wema_temp)` |
@@ -451,28 +474,99 @@ prom_err_series_velviento <- promedio_series_err(res_wema_velviento$series_encon
 ### Series de Datos Analizados
 
 |   | Resultado |
-|----|----|
+|------------------------------------|------------------------------------|
 | Cantidad de series a analizar | `r  nrow(res_wema_temp_s_cv)` series |
 | Cantidad de series descartadas | `r nrow(res_wema_temp$series_descartadas)` series |
-| Cantidad de series encontradas | `r nrow(dta_serie_temperatura)`series |
+| Cantidad de series encontradas | `r nrow(dta_serie_temperatura)` series |
+
+### Resumen Series de Mediciones Temperatura
 
 ```{r, echo=FALSE}
 library(knitr)
-resumen_serie_temperatura <- prom_err_series_temperatura %>% summarise(MedicionesTotales = sum(prom_err_series_temperatura$cantMediciones), MaxErrorAbs = max(prom_err_series_temperatura$PromEAbs), MinErrorAbs = min(prom_err_series_temperatura$PromEAbs))
-kable(resumen_serie_temperatura, caption = "Resumen para las series de mediciones de temperatura")
+maxmin <- prom_err_series_velviento %>% summarise('Max. Prom E. Abs.' = max(PromEAbs), 'Min. Prom E. Abs.' = min(PromEAbs), 'Max. Prom E. Rel.' = min(PromERel), 'Min. Prom E. Rel'= min(PromERel))
+kable(maxmin)
+
+promedios <- prom_err_series_velviento %>% summarise('Prom. General E. Abs.'=mean(PromEAbs), 'Prom. General E. Rel.' = mean(PromERel),'Mediciones Totales' = sum(prom_err_series_velviento$cantMediciones))
+
+kable(promedios)
 ```
 
-### Comparación de errores para las series de temperatura
+### Comparación de Errores para las Series de Temperatura
 
 ```{r, echo=FALSE}
+
 #--------------TEMPERATURA
 kable(prom_err_series_temperatura, caption = "Promedio de Errores para las series de temperatura")
+
+
+
 ```
 
-### Comparación Coeficiente de variacion entre Temperatura real y medición
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+
+prom_err_series_temperatura$indice <- seq_along(prom_err_series_temperatura$PromEAbs)
+
+ggplot(prom_err_series_temperatura, aes(x = factor(indice), y = PromEAbs)) +
+  geom_bar(stat = 'identity', fill = "green3") +
+  geom_label(aes(label = round(PromEAbs, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error absoluto', x = 'Índice', y = 'Prom. Errores Absolutos') +
+  theme_minimal() 
+
+
+ggplot(prom_err_series_temperatura, aes(x = factor(indice), y = PromEPorc)) +
+  geom_bar(stat = 'identity', fill = "blue3") +
+  geom_label(aes(label = round(PromEPorc, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error relativo', x = 'Índice', y = 'Prom. Errores Relativos (%)') +
+  theme_minimal() 
+
+```
+
+### Comparación Coeficiente de Variacion Entre Temperatura Real y Mediciones de la Estación WEMA
 
 ```{r , echo=FALSE}
 kable(res_wema_temp_s_cv, caption = "coeficiente de variacion, para las series de temperatura encontrada")
+
+maxmin <- res_wema_temp_s_cv %>% summarise('Max. C.V WEMA' = max(CoefVariacionWEMA) , 'Min C.V WEMA' = min(CoefVariacionWEMA),'Max C.V OFENA' = max(CoefVariacionOFENA), 'Min C.V OFENA'= min(CoefVariacionOFENA))
+kable(maxmin)
+promedios <- res_wema_temp_s_cv %>% summarise('Promedio General C.V OFENA' = mean(CoefVariacionOFENA), 'Promedio General C.V WEMA' = mean(CoefVariacionWEMA),'Promedio General dif. C.V' = mean(`dif C.V`))
+
+kable(promedios)
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_temp_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_label(aes(y = CoefVariacionOFENA, label = round(CoefVariacionOFENA, 2)),
+        fill = "white", color = "blue3", size = 3, label.size = 0.3, vjust = 0.5, hjust = 1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variación de mediciones de temperatura para la estación OFENA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "blue3"))
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_temp_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    geom_label(aes(y = CoefVariacionWEMA, label = round(CoefVariacionWEMA, 2)),
+        fill = "white", color = "green3", size = 3, label.size = 0.3, vjust = -1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variacion de mediciones de temperatura para la estación WEMA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c( "C.V WEMA" = "green3"))
 ```
 
 ```{r, echo=FALSE}
@@ -482,22 +576,21 @@ ggplot(res_wema_temp_s_cv, aes(x = NoSerie)) +
     geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
     geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
     geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
-    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
-    geom_label(aes(y = CoefVariacionOFENA, label = round(CoefVariacionOFENA, 2)),
-        fill = "white", color = "red", size = 3, label.size = 0.3, vjust = 0.5, hjust = 1
-    ) +
-    geom_label(aes(y = CoefVariacionWEMA, label = round(CoefVariacionWEMA, 2)),
-        fill = "white", color = "green4", size = 3, label.size = 0.3, vjust = -1
-    ) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA"))+
     labs(
-        title = "Comparación Coeficiente de variacion entre  temperatura real y medición",
+        title = "Comparación Coeficiente de variacion entre  temperatura real y medición para las estaciones WEMA Y OFENA",
         y = "C.V", x = "No. serie"
     ) +
     theme_minimal() +
-    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "green4"))
+    scale_color_manual(values = c("C.V OFENA" = "blue3", "C.V WEMA" = "green3"))
+
 ```
 
-### Disponibilidad de la variable temperatura
+### Disponibilidad de la Variable Temperatura
+
+-   Fecha de inicio: 19/12/2024.
+
+-   Fecha de fin: 02/02/2024.
 
 ```{r, echo=FALSE}
 #--------------TEMPERATURA
@@ -517,129 +610,169 @@ kable(summ_disponibilidad_temperatura, caption = "Resumen de interrupciones en l
 fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
-mtbf_temperatura <- mtbf_calc(summ_disponibilidad_temperatura$TiempoTotalDispHora, summ_disponibilidad_temperatura$cantHorasInterrupcion, summ_disponibilidad_temperatura$cantParadas)
+mtbf_temperatura <- mtbf_calc(h_total_planificado, summ_disponibilidad_temperatura$cantHorasInterrupcion, summ_disponibilidad_temperatura$cantParadas)
 mttr_temperatura <- mttr_calc(summ_disponibilidad_temperatura$cantHorasInterrupcion, summ_disponibilidad_temperatura$cantParadas)
 disponibilidad_temperatura <- disponibilidad_2(mtbf = mtbf_temperatura, mttr = mttr_temperatura)
 
 # mostrar resultados
-kable(data.frame(MTBF = mtbf_temperatura, MTTR = mttr_temperatura, Disponibilidad = disponibilidad_temperatura), caption = "Resultados de disponibilidad para la medición de temperatura")
+kable(data.frame(MTBF = mtbf_temperatura, MTTR = mttr_temperatura, 'Horas Planificadas'= h_total_planificado), caption = "Resultados de disponibilidad para la medición de temperatura")
 ```
 
-## Resumen series de mediciones presion
+## Resultados de la Variable Presión
+
+### Limpieza de Datos OFENA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos OFENA original | `r cant_original_presion_ofena` |
+| Cantidad de datos Nulos OFENA | `r cant_na_presion_ofena` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(data_presion_ofena)` |
+
+: Resumen de limpieza de datos, para la variable de presión datos OFENA
+
+### Limpieza de Datos WEMA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos WEMA original | `r cant_original_presion_wema` |
+| Cantidad de datos Nulos WEMA | `r cant_na_presion_wema` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(wema_presion)` |
+
+: Resumen limpieza de datos, para la variable de presión
+
+### Series de Datos Analizados
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad de series a analizar | `r  nrow(res_wema_presion_s_cv)` series |
+| Cantidad de series descartadas | `r nrow(res_wema_presion$series_descartadas)` series |
+| Cantidad de series encontradas | `r nrow(data_serie_presion)` series |
+
+: Resumen de las series de datos para la variable de presión
+
+### Resumen de Series de Mediciones Presión
+
+```{r, echo=FALSE}
+library(knitr)
+maxmin <- prom_err_series_presion %>% summarise('Max. Prom E. Abs.' = max(PromEAbs), 'Min. Prom E. Abs.' = min(PromEAbs), 'Max. Prom E. Rel.' = min(PromERel), 'Min. Prom E. Rel'= min(PromERel))
+kable(maxmin)
+
+promedios <- prom_err_series_presion %>% summarise('Prom. General E. Abs.'=mean(PromEAbs), 'Prom. General E. Rel.' = mean(PromERel),'Mediciones Totales' = sum(prom_err_series_velviento$cantMediciones))
+
+kable(promedios)
+```
 
 ```{r, echo=FALSE}
 resumen_serie_presion <- prom_err_series_presion %>% summarise(MedicionesTotales = sum(prom_err_series_presion$cantMediciones), MaxErrorAbs = max(prom_err_series_presion$PromEAbs), MinErrorAbs = min(prom_err_series_presion$PromEAbs))
 kable(resumen_serie_presion, caption = "Resumen para las series de mediciones de presion")
 ```
 
-## Resumen series de mediciones humedad
+### Comparación de Errores para las Series de Presión
 
-```{r,echo=FALSE}
-resumen_serie_humedad <- prom_err_series_humedad %>% summarise(MedicionesTotales = sum(prom_err_series_humedad$cantMediciones), MaxErrorAbs = max(prom_err_series_humedad$PromEAbs), MinErrorAbs = min(prom_err_series_humedad$PromEAbs))
-kable(resumen_serie_humedad, caption = "Resumen para las series de mediciones de humedad")
-
-```
-
-## Resumen series de mediciones direccion del viento
-
-```{r,echo=FALSE}
-resumen_serie_dirviento <- prom_err_series_dirviento %>% summarise(MedicionesTotales = sum(prom_err_series_dirviento$cantMediciones), MaxErrorAbs = max(prom_err_series_dirviento$PromEAbs), MinErrorAbs = min(prom_err_series_dirviento$PromEAbs))
-kable(resumen_serie_dirviento, caption = "Resumen para las series de mediciones de direccion del viento")
-```
-
-## Resumen series de mediciones velocidad del viento
-
-```{r,echo=FALSE}
-resumen_serie_velviento <- prom_err_series_velviento %>% summarise(MedicionesTotales = sum(prom_err_series_velviento$cantMediciones), MaxErrorAbs = max(prom_err_series_velviento$PromEAbs), MinErrorAbs = min(prom_err_series_velviento$PromEAbs))
-kable(resumen_serie_velviento, caption = "Resumen para las series de mediciones de velocidad del viento")
-```
-
-## Comparación Coeficiente de variacion entre presion real y medición
-
-```{r,echo=FALSE}
+```{r, echo=FALSE}
 #--------------PRESION
-kable(prom_err_series_presion, caption = "Promedio de Errores para las series de presion")
-kable(res_wema_presion_s_cv, caption = "coeficiente de variacion, para las series de presion encontrada")
+kable(prom_err_series_presion, caption = "Promedio de Errores para las series de presión")
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+
+prom_err_series_presion$indice <- seq_along(prom_err_series_presion$PromEAbs)
+
+ggplot(prom_err_series_presion, aes(x = factor(indice), y = PromEAbs)) +
+  geom_bar(stat = 'identity', fill = "green3") +
+  geom_label(aes(label = round(PromEAbs, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error absoluto', x = 'Índice', y = 'Prom. Errores Absolutos') +
+  theme_minimal() 
+
+ggplot(prom_err_series_presion, aes(x = factor(indice), y = PromEPorc)) +
+  geom_bar(stat = 'identity', fill = "blue3") +
+  geom_label(aes(label = round(PromEPorc, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error relativo', x = 'Índice', y = 'Prom. Errores Relativos (%)') +
+  theme_minimal() 
+
+```
+
+### Comparación Coeficiente de Variacion Entre Presión Real y Mediciones de la Estación WEMA
+
+```{r , echo=FALSE}
+kable(res_wema_presion_s_cv, caption = "coeficiente de variacion, para las series de presión encontrada")
+
+maxmin <- res_wema_presion_s_cv %>% summarise('Max. C.V WEMA' = max(CoefVariacionWEMA) , 'Min C.V WEMA' = min(CoefVariacionWEMA),'Max C.V OFENA' = max(CoefVariacionOFENA), 'Min C.V OFENA'= min(CoefVariacionOFENA))
+kable(maxmin)
+promedios <- res_wema_presion_s_cv %>% summarise('Promedio General C.V OFENA' = mean(CoefVariacionOFENA), 'Promedio General C.V WEMA' = mean(CoefVariacionWEMA),'Promedio General dif. C.V' = mean(`dif C.V`))
+
+kable(promedios)
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_presion_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_label(aes(y = CoefVariacionOFENA, label = round(CoefVariacionOFENA, 5)),
+        fill = "white", color = "blue3", size = 3, label.size = 0.3, vjust = -1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variación de las mediciones de presión para la estación OFENA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c( "C.V OFENA" = "blue3"))
+      
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_presion_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    geom_label(aes(y = CoefVariacionWEMA, label = round(CoefVariacionWEMA, 5)),
+        fill = "white", color = "green3", size = 3, label.size = 0.3, vjust = -1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variacion de las mediciones de presión para la estación WEMA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c( "C.V WEMA" = "green3"))
+      
+```
+
+```{r,echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
 print(ggplot(res_wema_presion_s_cv, aes(x = NoSerie)) +
     geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
     geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
     geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
     geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
     labs(
-        title = "Comparación Coeficiente de variacion entre  presion real y medición",
+        title = "Comparación Coeficiente de variacion entre  presion real y medición para la variable de presión",
         y = "C.V", x = "No. serie"
     ) +
     theme_minimal() +
-    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
+    scale_color_manual(values = c("C.V OFENA" = "blue3", "C.V WEMA" = "green3")))
 ```
 
-## Comparación Coeficiente de variacion entre humedad real y medición
+### Disponibilidad de la Variable Presion
 
-```{r,echo=FALSE}
-#--------------HUMEDAD
-kable(prom_err_series_humedad, caption = "Promedio de Errores para las series de humedad")
-kable(res_wema_humedad_s_cv, caption = "coeficiente de variacion, para las series de humedad encontrada")
-print(ggplot(res_wema_humedad_s_cv, aes(x = NoSerie)) +
-    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
-    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
-    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
-    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
-    labs(
-        title = "Comparación Coeficiente de variacion entre  humedad real y medición",
-        y = "C.V", x = "No. serie"
-    ) +
-    theme_minimal() +
-    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
-```
+-   Fecha de inicio: 19/12/2024.
 
-## Comparación Coeficiente de variacion entre direccion del viento real y medición
-
-```{r,echo=FALSE}
-#--------------DIRVIENTO
-kable(prom_err_series_dirviento, caption = "Promedio de Errores para las series de direccion del viento")
-kable(res_wema_dirviento_s_cv, caption = "coeficiente de variacion, para las series de direccion del viento encontrada")
-print(ggplot(res_wema_dirviento_s_cv, aes(x = NoSerie)) +
-    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
-    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
-    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
-    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
-    labs(
-        title = "Comparación Coeficiente de variacion entre direccion del viento real y medición",
-        y = "C.V", x = "No. serie"
-    ) +
-    theme_minimal() +
-    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
-```
-
-## Comparación Coeficiente de variacion entre velocidad del viento real y medición
-
-```{r,echo=FALSE}
-#--------------VELVIENTO
-kable(prom_err_series_velviento, caption = "Promedio de Errores para las series de velocidad del viento")
-kable(res_wema_velviento_s_cv, caption = "coeficiente de variacion, para las series de velocidad del viento encontrada")
-print(ggplot(res_wema_velviento_s_cv, aes(x = NoSerie)) +
-    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
-    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
-    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
-    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
-    labs(
-        title = "Comparación Coeficiente de variacion entre velocidad del viento real y medición",
-        y = "C.V", x = "No. serie"
-    ) +
-    theme_minimal() +
-    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
-```
-
-## Disponibilidad de la variable presion
+-   Fecha de fin: 02/02/2024.
 
 ```{r, echo=FALSE}
-#--------------PRESION
+
 dta_presion_disponibilidad <- encontrar_tiempos_no_disponible(wema_presion_def)
 dta_presion_frec_interrupciones <- dta_presion_disponibilidad %>%
     group_by(MinutosNoDisponible) %>%
     summarise(Frecuencia = n())
+
 dta_presion_frec_interrupciones <- dta_presion_frec_interrupciones %>% mutate(TotalMinutos = MinutosNoDisponible * Frecuencia)
-kable(dta_presion_frec_interrupciones, caption = "Frecuencia de interrupciones en la medición de presion")
+kable(dta_presion_frec_interrupciones, caption = "Frecuencia de interrupciones en la medición de presión")
 
 summ_disponibilidad_presion <- dta_presion_frec_interrupciones %>% summarise(cantMinutosInterrupcion = sum(MinutosNoDisponible * Frecuencia), cantHorasInterrupcion = sum(MinutosNoDisponible * Frecuencia) / 60, cantParadas = sum(Frecuencia), TiempoTotalDispMin = nrow(wema_presion_def), TiempoTotalDispHora = nrow(wema_presion_def) / 60)
 
@@ -650,15 +783,157 @@ kable(summ_disponibilidad_presion, caption = "Resumen de interrupciones en la me
 fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
-mtbf_presion <- mtbf_calc(summ_disponibilidad_presion$TiempoTotalDispHora, summ_disponibilidad_presion$cantHorasInterrupcion, summ_disponibilidad_presion$cantParadas)
+mtbf_presion <- mtbf_calc(h_total_planificado, summ_disponibilidad_presion$cantHorasInterrupcion, summ_disponibilidad_presion$cantParadas)
 mttr_presion <- mttr_calc(summ_disponibilidad_presion$cantHorasInterrupcion, summ_disponibilidad_presion$cantParadas)
 disponibilidad_presion <- disponibilidad_2(mtbf = mtbf_presion, mttr = mttr_presion)
 
 # mostrar resultados
-kable(data.frame(MTBF = mtbf_presion, MTTR = mttr_presion, Disponibilidad = disponibilidad_presion), caption = "Resultados de disponibilidad para la medición de presion")
+kable(data.frame(MTBF = mtbf_presion, MTTR = mttr_presion, 'Horas Planificadas'=h_total_planificado), caption = "Resultados de disponibilidad para la medición de presion")
+
 ```
 
-## Disponiblidad de la variable Humedad
+## Resultados de la Variable Humedad
+
+### Limpieza de Datos OFENA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos OFENA original | `r cant_original_humedad_ofena` |
+| Cantidad de datos Nulos OFENA | `r cant_na_humedad_ofena` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(data_humedad_ofena)` |
+
+: Resumen de limpieza de datos, para la variable de humedad datos OFENA
+
+### Limpieza de Datos WEMA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos WEMA original | `r cant_original_humeda_wema` |
+| Cantidad de datos Nulos WEMA | `r cant_na_humedad_wema` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(wema_humedad)` |
+
+: Resumen limpieza de datos, para la variable de humedad
+
+### Series de Datos Analizados
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad de series a analizar | `r  nrow(res_wema_humedad_s_cv)` series |
+| Cantidad de series descartadas | `r nrow(res_wema_humedad$series_descartadas)` series |
+| Cantidad de series encontradas | `r nrow(data_serie_humedad)` series |
+
+: Resumen de las series de datos para la variable de presión
+
+### Resumen Series de Mediciones Humedad
+
+```{r,echo=FALSE}
+maxmin <- prom_err_series_humedad %>% summarise('Max. Prom E. Abs.' = max(PromEAbs), 'Min. Prom E. Abs.' = min(PromEAbs), 'Max. Prom E. Rel.' = min(PromERel), 'Min. Prom E. Rel'= min(PromERel))
+kable(maxmin)
+
+promedios <- prom_err_series_humedad %>% summarise('Prom. General E. Abs.'=mean(PromEAbs), 'Prom. General E. Rel.' = mean(PromERel),'Mediciones Totales' = sum(prom_err_series_velviento$cantMediciones))
+
+kable(promedios)
+
+```
+
+### Comparación de Errores para las Series de Humedad
+
+```{r, echo=FALSE}
+
+kable(prom_err_series_humedad, caption = "Promedio de Errores para las series de humedad")
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+
+prom_err_series_humedad$indice <- seq_along(prom_err_series_humedad$PromEAbs)
+
+ggplot(prom_err_series_humedad, aes(x = factor(indice), y = PromEAbs)) +
+  geom_bar(stat = 'identity', fill = "green3") +
+  geom_label(aes(label = round(PromEAbs, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error absoluto', x = 'Índice', y = 'Prom. Errores Absolutos') +
+  theme_minimal() 
+
+ggplot(prom_err_series_humedad, aes(x = factor(indice), y = PromEPorc)) +
+  geom_bar(stat = 'identity', fill = "blue3") +
+  geom_label(aes(label = round(PromEPorc, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error relativo', x = 'Índice', y = 'Prom. Errores Relativos (%)') +
+  theme_minimal() 
+
+```
+
+### Comparación Coeficiente de Variacion Entre Humedad Real y Mediciones de la Estación WEMA
+
+```{r,echo=FALSE}
+#--------------HUMEDAD
+
+kable(res_wema_humedad_s_cv, caption = "coeficiente de variacion, para las series de humedad encontrada")
+
+maxmin <- res_wema_humedad_s_cv %>% summarise('Max. C.V WEMA' = max(CoefVariacionWEMA) , 'Min C.V WEMA' = min(CoefVariacionWEMA),'Max C.V OFENA' = max(CoefVariacionOFENA), 'Min C.V OFENA'= min(CoefVariacionOFENA))
+kable(maxmin)
+promedios <- res_wema_humedad_s_cv %>% summarise('Promedio General C.V OFENA' = mean(CoefVariacionOFENA), 'Promedio General C.V WEMA' = mean(CoefVariacionWEMA),'Promedio General dif. C.V' = mean(`dif C.V`))
+
+kable(promedios)
+
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_humedad_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_label(aes(y = CoefVariacionOFENA, label = round(CoefVariacionOFENA, 5)),
+        fill = "white", color = "blue3", size = 3, label.size = 0.3, vjust = -1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variación de las mediciones de humedad para la estación OFENA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c( "C.V OFENA" = "blue3"))
+      
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_humedad_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    geom_label(aes(y = CoefVariacionWEMA, label = round(CoefVariacionWEMA, 5)),
+        fill = "white", color = "green3", size = 3, label.size = 0.3, vjust = -1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variación de las mediciones de humedad para la estación WEMA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c( "C.V WEMA" = "green3"))
+      
+```
+
+```{r,echo=FALSE}
+
+print(ggplot(res_wema_humedad_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    labs(
+        title = "Comparación Coeficiente de variacion entre  humedad real y medición",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "blue3", "C.V WEMA" = "green3")))
+```
+
+### Disponiblidad de la Variable Humedad
+
+-   Fecha de inicio: 19/12/2024.
+
+-   Fecha de fin: 02/02/2024.
 
 ```{r,echo=FALSE}
 #--------------HUMEDAD
@@ -678,15 +953,87 @@ kable(summ_disponibilidad_humedad, caption = "Resumen de interrupciones en la me
 fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
-mtbf_humedad <- mtbf_calc(summ_disponibilidad_humedad$TiempoTotalDispHora, summ_disponibilidad_humedad$cantHorasInterrupcion, summ_disponibilidad_humedad$cantParadas)
+mtbf_humedad <- mtbf_calc(h_total_planificado, summ_disponibilidad_humedad$cantHorasInterrupcion, summ_disponibilidad_humedad$cantParadas)
 mttr_humedad <- mttr_calc(summ_disponibilidad_humedad$cantHorasInterrupcion, summ_disponibilidad_humedad$cantParadas)
 disponibilidad_humedad <- disponibilidad_2(mtbf = mtbf_humedad, mttr = mttr_humedad)
 
 # mostrar resultados
-kable(data.frame(MTBF = mtbf_humedad, MTTR = mttr_humedad, Disponibilidad = disponibilidad_humedad), caption = "Resultados de disponibilidad para la medición de humedad")
+kable(data.frame(MTBF = mtbf_humedad, MTTR = mttr_humedad, 'Horas Planificadas'=h_total_planificado), caption = "Resultados de disponibilidad para la medición de humedad")
 ```
 
-## Disponiblidad de la variable Direccion del viento
+## Resultados de la Variable Direccion del Viento
+
+### Limpieza de Datos OFENA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos OFENA original | `r cant_original_dirviento_ofena` |
+| Cantidad de datos Nulos OFENA | `r cant_na_dirviento_ofena` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(data_dirviento_ofena)` |
+
+: Resumen de limpieza de datos, para la variable de dirección del viento datos OFENA
+
+### Limpieza de Datos WEMA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos WEMA original | `r cant_original_dirviento_wema` |
+| Cantidad de datos Nulos WEMA | `r cant_na_dirviento_wema` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(wema_dirviento)` |
+
+: Resumen limpieza de datos, para la variable de dirección del viento
+
+### Series de Datos Analizados
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad de series a analizar | `r  nrow(res_wema_dirviento_s_cv)` series |
+| Cantidad de series descartadas | `r nrow(res_wema_dirviento$series_descartadas)` series |
+| Cantidad de series encontradas | `r nrow(data_serie_dirviento)` series |
+
+: Resumen de las series de datos para la variable de dirección del viento
+
+### Resumen Series de Mediciones Direccion del Viento
+
+```{r,echo=FALSE}
+if (nrow(data_serie_dirviento) < 1) {
+  resumen_serie_dirviento <- prom_err_series_dirviento %>% summarise(MedicionesTotales = sum(prom_err_series_dirviento$cantMediciones), MaxErrorAbs = max(prom_err_series_dirviento$PromEAbs), MinErrorAbs = min(prom_err_series_dirviento$PromEAbs))
+  
+kable(resumen_serie_dirviento, caption = "Resumen para las series de mediciones de direccion del viento")
+}else{
+  print("No se encontraron series para analizar.")
+}
+
+```
+
+### Comparación Coeficiente de Variacion Entre Direccion del Viento Real y Mediciones de la Estación WEMA
+
+```{r,echo=FALSE}
+#--------------DIRVIENTO
+if(nrow(data_serie_dirviento) < 1){
+  kable(prom_err_series_dirviento, caption = "Promedio de Errores para las series de direccion del viento")
+kable(res_wema_dirviento_s_cv, caption = "coeficiente de variacion, para las series de direccion del viento encontrada")
+print(ggplot(res_wema_dirviento_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    labs(
+        title = "Comparación Coeficiente de variacion entre direccion del viento real y medición",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "red", "C.V WEMA" = "blue")))
+}else{
+  print("No hay datos para analizar.")
+}
+
+```
+
+### Disponiblidad de la Variable Direccion del Viento
+
+-   Fecha de inicio: 19/12/2024.
+-   Fecha de fin: 02/02/2024.
 
 ```{r,echo=FALSE}
 #--------------DIRVIENTO
@@ -706,17 +1053,157 @@ kable(summ_disponibilidad_dirviento, caption = "Resumen de interrupciones en la 
 fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
-mtbf_dirviento <- mtbf_calc(summ_disponibilidad_dirviento$TiempoTotalDispHora, summ_disponibilidad_dirviento$cantHorasInterrupcion, summ_disponibilidad_dirviento$cantParadas)
+mtbf_dirviento <- mtbf_calc(h_total_planificado , summ_disponibilidad_dirviento$cantHorasInterrupcion, summ_disponibilidad_dirviento$cantParadas)
 # disponibilidad
 mttr_dirviento <- mttr_calc(summ_disponibilidad_dirviento$cantHorasInterrupcion, summ_disponibilidad_dirviento$cantParadas)
 disponibilidad_dirviento <- disponibilidad_2(mtbf = mtbf_dirviento, mttr = mttr_dirviento)
 
 # mostrar resultados
-kable(data.frame(MTBF = mtbf_dirviento, MTTR = mttr_dirviento, Disponibilidad = disponibilidad_dirviento), caption = "Resultados de disponibilidad para la medición de direccion del viento")
+kable(data.frame(MTBF = mtbf_dirviento, MTTR = mttr_dirviento, 'Horas Planificadas'= h_total_planificado), caption = "Resultados de disponibilidad para la medición de direccion del viento")
 
 ```
 
-## Disponiblidad de la variable Velocidad del viento
+## Resultados de la Variable Velocidad del Viento
+
+### Limpieza de Datos OFENA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos OFENA original | `r cant_original_velviento_ofena` |
+| Cantidad de datos Nulos OFENA | `r cant_na_velviento_ofena` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(data_velviento_ofena)` |
+
+: Resumen de limpieza de datos, para la variable de velocidad del viento OFENA
+
+### Limpieza de Datos WEMA
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad datos WEMA original | `r cant_original_velviento_wema` |
+| Cantidad de datos Nulos WEMA | `r cant_na_velviento_wema` |
+| Cantidad de datos limpios en intervalos de 5 minutos | `r nrow(wema_velviento)` |
+
+: Resumen limpieza de datos, para la variable de velocidad del viento
+
+### Series de Datos Analizados
+
+|   | Resultado |
+|------------------------------------|------------------------------------|
+| Cantidad de series a analizar | `r  nrow(res_wema_velviento_s_cv)` series |
+| Cantidad de series descartadas | `r nrow(res_wema_velviento$series_descartadas)` series |
+| Cantidad de series encontradas | `r nrow(data_serie_velviento)` series |
+
+: Resumen de las series de datos para la variable de velocidad del viento
+
+### Resumen Series de Mediciones Velocidad del Viento
+
+```{r,echo=FALSE}
+maxmin <- prom_err_series_velviento %>% summarise('Max. Prom E. Abs.' = max(PromEAbs), 'Min. Prom E. Abs.' = min(PromEAbs), 'Max. Prom E. Rel.' = min(PromERel), 'Min. Prom E. Rel'= min(PromERel))
+kable(maxmin)
+
+promedios <- prom_err_series_velviento %>% summarise('Prom. General E. Abs.'=mean(PromEAbs), 'Prom. General E. Rel.' = mean(PromERel),'Mediciones Totales' = sum(prom_err_series_velviento$cantMediciones))
+
+kable(promedios)
+```
+
+### Resumen Series de Mediciones Direccion del Viento
+
+```{r, echo=FALSE}
+
+#--------------VELVIENTO
+kable(prom_err_series_velviento, caption = "Promedio de Errores para las series de velocidad del viento")
+
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+
+prom_err_series_velviento$indice <- seq_along(prom_err_series_velviento$PromEAbs)
+
+ggplot(prom_err_series_velviento, aes(x = factor(indice), y = PromEAbs)) +
+  geom_bar(stat = 'identity', fill = "green3") +
+  geom_label(aes(label = round(PromEAbs, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error absoluto', x = 'Índice', y = 'Prom. Errores Absolutos') +
+  theme_minimal() 
+
+ggplot(prom_err_series_velviento, aes(x = factor(indice), y = PromEPorc)) +
+  geom_bar(stat = 'identity', fill = "blue3") +
+  geom_label(aes(label = round(PromEPorc, 3)), fill = "white", color = "blue3", size = 3, label.size = 0.5, vjust = -0.5, angle = 45) +
+  labs(title = 'Gráfico de barras para los promedios de error relativo', x = 'Índice', y = 'Prom. Errores Relativos (%)') +
+  theme_minimal() 
+
+```
+
+### Comparación Coeficiente de Variacion Entre Velocidad del Viento Real y Mediciones de la Estación WEMA
+
+```{r, echo=FALSE}
+
+kable(res_wema_velviento_s_cv, caption = "coeficiente de variacion, para las series de velocidad del viento encontrada")
+
+maxmin <- res_wema_velviento_s_cv %>% summarise('Max. C.V WEMA' = max(CoefVariacionWEMA) , 'Min C.V WEMA' = min(CoefVariacionWEMA),'Max C.V OFENA' = max(CoefVariacionOFENA), 'Min C.V OFENA'= min(CoefVariacionOFENA))
+kable(maxmin)
+promedios <- res_wema_velviento_s_cv %>% summarise('Promedio General C.V OFENA' = mean(CoefVariacionOFENA), 'Promedio General C.V WEMA' = mean(CoefVariacionWEMA),'Promedio General dif. C.V' = mean(`dif C.V`))
+
+kable(promedios)
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_velviento_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_label(aes(y = CoefVariacionOFENA, label = round(CoefVariacionOFENA, 5)),
+        fill = "white", color = "blue3", size = 3, label.size = 0.3, vjust = -1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variacion de mediciones de dirección del viento para la la estación OFENA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c( "C.V OFENA" = "blue3"))
+      
+```
+
+```{r, echo=FALSE}
+#| fig-width: 12
+#| fig-height: 8
+ggplot(res_wema_velviento_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    geom_label(aes(y = CoefVariacionWEMA, label = round(CoefVariacionWEMA, 5)),
+        fill = "white", color = "green3", size = 3, label.size = 0.3, vjust = -1
+    ) +
+    labs(
+        title = "Comparación Coeficiente de variacion para las mediciones de velocidad del viento para la estación WEMA",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c( "C.V WEMA" = "green3"))
+      
+```
+
+```{r,echo=FALSE}
+
+print(ggplot(res_wema_velviento_s_cv, aes(x = NoSerie)) +
+    geom_point(aes(y = CoefVariacionOFENA, color = "C.V OFENA"), size = 3) +
+    geom_point(aes(y = CoefVariacionWEMA, color = "C.V WEMA"), size = 3) +
+    geom_line(aes(y = CoefVariacionOFENA, group = 1, color = "C.V OFENA")) +
+    geom_line(aes(y = CoefVariacionWEMA, group = 1, color = "C.V WEMA")) +
+    labs(
+        title = "Comparación Coeficiente de variacion entre velocidad del viento real y medición",
+        y = "C.V", x = "No. serie"
+    ) +
+    theme_minimal() +
+    scale_color_manual(values = c("C.V OFENA" = "blue3", "C.V WEMA" = "green3")))
+```
+
+### Disponiblidad de la Variable Velocidad del Viento
+
+-   Fecha de inicio: 19/12/2024.
+
+-   Fecha de fin: 02/02/2024.
 
 ```{r, echo=FALSE}
 
@@ -737,18 +1224,10 @@ kable(summ_disponibilidad_velviento, caption = "Resumen de interrupciones en la 
 fecha_inicio <- as.POSIXct("2024-12-19 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 fecha_fin <- as.POSIXct("2025-02-02 00:00:00", format = "%Y-%m-%d %H:%M:%S")
 h_total_planificado <- as.numeric(difftime(fecha_fin, fecha_inicio, units = "hours"))
-mtbf_velviento <- mtbf_calc(summ_disponibilidad_velviento$TiempoTotalDispHora, summ_disponibilidad_velviento$cantHorasInterrupcion, summ_disponibilidad_velviento$cantParadas)
+mtbf_velviento <- mtbf_calc(h_total_planificado , summ_disponibilidad_velviento$cantHorasInterrupcion, summ_disponibilidad_velviento$cantParadas)
 mttr_velviento <- mttr_calc(summ_disponibilidad_velviento$cantHorasInterrupcion, summ_disponibilidad_velviento$cantParadas)
 disponibilidad_velviento <- disponibilidad_2(mtbf = mtbf_velviento, mttr = mttr_velviento)
 
 # mostrar resultados
-kable(data.frame(MTBF = mtbf_velviento, MTTR = mttr_velviento, Disponibilidad = disponibilidad_velviento), caption = "Resultados de disponibilidad para la medición de velocidad del viento")
+kable(data.frame(MTBF = mtbf_velviento, MTTR = mttr_velviento, 'Horas Planificadas'=h_total_planificado), caption = "Resultados de disponibilidad para la medición de velocidad del viento")
 ```
-
-$$
-MTBF= \frac{\text{Tiempo total disponible} - \text{Tiempo de Inactividad}}{\text{Número de paradas}}
-$$
-
-$$
-\text{Disponibilidad \(\%\)} = \frac{\text{Horas Disponibles}}{\text{Horas Planificadas}} *100\%
-$$
